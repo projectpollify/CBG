@@ -1,0 +1,205 @@
+// Database configuration
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ========== USER MANAGEMENT ==========
+model User {
+  id                String   @id @default(uuid())
+  email             String   @unique
+  password          String
+  firstName         String
+  lastName          String
+  role              UserRole
+  regionId          String   // Which franchise location
+  isActive          Boolean  @default(true)
+  lastLogin         DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  sessions          Session[]
+  
+  @@index([email])
+  @@index([regionId])
+}
+
+enum UserRole {
+  OWNER
+  MANAGER
+  FRANCHISEE
+  EMPLOYEE
+  VIEWER
+}
+
+// ========== SESSIONS ==========
+model Session {
+  id                String   @id @default(uuid())
+  token             String   @unique
+  userId            String
+  user              User     @relation(fields: [userId], references: [id])
+  expiresAt         DateTime
+  createdAt         DateTime @default(now())
+  
+  @@index([token])
+  @@index([userId])
+}
+
+// ========== CUSTOMERS ==========
+model Customer {
+  id                String   @id @default(uuid())
+  regionId          String   // Which franchise serves them
+  
+  // Business Info
+  businessName      String
+  contactName       String
+  email             String
+  phone             String
+  
+  // Address
+  street            String
+  city              String
+  province          String   @default("BC")
+  postalCode        String
+  
+  // Details
+  notes             String?
+  status            CustomerStatus @default(ACTIVE)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  lastContactDate   DateTime?
+  
+  // Relations
+  invoices          Invoice[]
+  appointments      Appointment[]
+  
+  @@index([regionId])
+  @@index([businessName])
+  @@index([email])
+}
+
+enum CustomerStatus {
+  ACTIVE
+  INACTIVE
+  PROSPECT
+}
+
+// ========== INVOICES ==========
+model Invoice {
+  id                String   @id @default(uuid())
+  invoiceNumber     Int      @unique
+  regionId          String
+  
+  // Customer
+  customerId        String
+  customer          Customer @relation(fields: [customerId], references: [id])
+  
+  // Dates
+  invoiceDate       DateTime @default(now())
+  dueDate           DateTime
+  paidDate          DateTime?
+  
+  // Status
+  status            InvoiceStatus @default(DRAFT)
+  
+  // Items stored as JSON for flexibility
+  lineItems         Json
+  
+  // Money
+  subtotal          Decimal  @db.Decimal(10, 2)
+  gstAmount         Decimal  @db.Decimal(10, 2)
+  pstAmount         Decimal  @db.Decimal(10, 2)
+  total             Decimal  @db.Decimal(10, 2)
+  
+  // Payment
+  paymentMethod     String?
+  
+  // Email tracking
+  emailedAt         DateTime?
+  emailedTo         String?
+  
+  // Extra
+  notes             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([regionId])
+  @@index([customerId])
+  @@index([invoiceNumber])
+  @@index([status])
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+// ========== APPOINTMENTS ==========
+model Appointment {
+  id                String   @id @default(uuid())
+  regionId          String
+  
+  // Details
+  title             String
+  description       String?
+  type              AppointmentType
+  status            AppointmentStatus @default(SCHEDULED)
+  
+  // Customer (optional - could be general task)
+  customerId        String?
+  customer          Customer? @relation(fields: [customerId], references: [id])
+  
+  // When
+  startDate         DateTime
+  endDate           DateTime
+  allDay            Boolean  @default(false)
+  
+  // Where
+  location          String?
+  
+  // Extra
+  reminderSent      Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([regionId])
+  @@index([startDate])
+  @@index([customerId])
+}
+
+enum AppointmentType {
+  DELIVERY
+  PICKUP
+  SERVICE
+  MEETING
+  TASK
+  OTHER
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+// ========== SETTINGS ==========
+model Settings {
+  id                String   @id @default(uuid())
+  category          String   // 'business', 'invoice', 'pricing'
+  key               String
+  value             Json
+  regionId          String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@unique([category, key, regionId])
+  @@index([regionId])
+}
