@@ -46,3 +46,10 @@ Building the core infrastructure for the complete platform.
 - **Cache:** Redis (optional)
 
 ## 📁 Project Structure
+cutting-board-guys/
+├── frontend/          # Next.js web application
+├── backend/           # Express API server
+├── shared/           # Shared types and utilities
+├── docs/             # Documentation
+├── scripts/          # Setup and deployment scripts
+└── .env.example      # Environment variables template
