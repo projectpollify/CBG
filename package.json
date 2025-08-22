@@ -1,36 +1,69 @@
 {
   "name": "cutting-board-guys",
   "version": "1.0.0",
-  "description": "Business Management Platform for Cutting Board Guys Franchisees",
-  "private": true,
-  "workspaces": [
-    "frontend",
-    "backend",
-    "shared"
-  ],
+  "description": "Business management platform for Cutting Board Guys franchise operations",
+  "main": "index.js",
   "scripts": {
-    "dev": "npm run dev:backend & npm run dev:frontend",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run dev",
     "build": "npm run build:shared && npm run build:backend && npm run build:frontend",
-    "build:frontend": "cd frontend && npm run build",
-    "build:backend": "cd backend && npm run build",
     "build:shared": "cd shared && npm run build",
-    "setup": "npm install && npm run setup:shared && npm run setup:backend && npm run setup:frontend",
-    "setup:frontend": "cd frontend && npm install",
-    "setup:backend": "cd backend && npm install",
-    "setup:shared": "cd shared && npm install"
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm start",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install && cd ../shared && npm install",
+    "clean": "rm -rf node_modules frontend/node_modules backend/node_modules shared/node_modules",
+    "clean:build": "rm -rf frontend/.next backend/dist shared/dist",
+    "db:generate": "cd backend && npx prisma generate",
+    "db:migrate": "cd backend && npx prisma migrate dev",
+    "db:reset": "cd backend && npx prisma migrate reset",
+    "db:studio": "cd backend && npx prisma studio",
+    "db:seed": "cd backend && npx prisma db seed",
+    "import:customers": "cd backend && npx ts-node scripts/importCustomers.ts",
+    "lint": "npm run lint:frontend && npm run lint:backend",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint:backend": "cd backend && npm run lint",
+    "test": "npm run test:frontend && npm run test:backend",
+    "test:frontend": "cd frontend && npm test",
+    "test:backend": "cd backend && npm test",
+    "type-check": "npm run type-check:shared && npm run type-check:backend && npm run type-check:frontend",
+    "type-check:shared": "cd shared && npx tsc --noEmit",
+    "type-check:backend": "cd backend && npx tsc --noEmit",
+    "type-check:frontend": "cd frontend && npx tsc --noEmit"
   },
   "keywords": [
-    "cutting-boards",
     "business-management",
+    "restaurant",
     "franchise",
-    "invoicing"
+    "invoice",
+    "customer-management",
+    "cutting-board-guys"
   ],
-  "author": "Cutting Board Guys Inc.",
-  "license": "PRIVATE",
+  "author": "Cutting Board Guys Development Team",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {},
+  "workspaces": [
+    "frontend",
+    "backend", 
+    "shared"
+  ],
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/cutting-board-guys.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/cutting-board-guys/issues"
+  },
+  "homepage": "https://github.com/your-username/cutting-board-guys#readme"
 }
