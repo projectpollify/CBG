@@ -1,7 +1,3 @@
-# This will create the import script file automatically
-# Copy and paste this command:
-
-cat > backend/scripts/importCustomers.ts << 'EOF'
 import { PrismaClient } from '@prisma/client';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -22,14 +18,14 @@ async function importCustomers() {
   try {
     console.log('🚀 Starting customer import...');
     
-    // Read the customer JSON file
+    // Read the customer JSON file from project root
     const jsonPath = path.join(__dirname, '../../customer_list_FINAL_GIST_READY.json');
     const jsonData = fs.readFileSync(jsonPath, 'utf8');
     const customers: ImportCustomer[] = JSON.parse(jsonData);
     
     console.log(`📊 Found ${customers.length} customers to import`);
     
-    // Clear existing customers (optional - remove this if you want to keep existing)
+    // Clear existing customers
     await prisma.customer.deleteMany();
     console.log('🗑️  Cleared existing customers');
     
@@ -115,4 +111,3 @@ async function importCustomers() {
 
 // Run the import
 importCustomers();
-EOF
