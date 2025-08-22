@@ -1,20 +1,23 @@
-// Shared types for Cutting Board Guys platform
-// Export all types to be used by frontend and backend
+// Re-export all customer types
+export * from './types/customer';
 
-// Database model types (matching Prisma schema from Foundation Module)
+// Base user types (from Foundation Module)
 export interface User {
   id: string;
   email: string;
-  password: string;
   name: string;
-  role: string;
-  region: string;
-  isActive: boolean;
-  lastLogin?: Date;
+  role: UserRole;
   createdAt: Date;
   updatedAt: Date;
 }
 
+export enum UserRole {
+  ADMIN = 'ADMIN',
+  FRANCHISEE = 'FRANCHISEE',
+  EMPLOYEE = 'EMPLOYEE'
+}
+
+// Session types (from Foundation Module)
 export interface Session {
   id: string;
   userId: string;
@@ -23,89 +26,27 @@ export interface Session {
   createdAt: Date;
 }
 
-export interface Customer {
-  id: string;
-  fullName: string;
-  company: string;
-  phone: string;
-  email: string;
-  address: string;
-  notes: string;
-  status: 'ACTIVE' | 'INACTIVE' | 'PROSPECT';
-  region: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
+// Invoice types (for future Module 4)
 export interface Invoice {
   id: string;
   invoiceNumber: string;
   customerId: string;
-  customer?: Customer;
   amount: number;
-  tax: number;
+  gst: number;
+  pst: number;
   total: number;
-  status: 'DRAFT' | 'SENT' | 'PAID' | 'OVERDUE';
+  items: InvoiceItem[];
+  status: InvoiceStatus;
   dueDate: Date;
-  lineItems: any; // JSON field
-  notes?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface Appointment {
-  id: string;
-  customerId: string;
-  customer?: Customer;
-  title: string;
+export interface InvoiceItem {
   description: string;
-  startDate: Date;
-  endDate: Date;
-  status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED';
-  location?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface Settings {
-  id: string;
-  key: string;
-  value: string;
-  description?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-// New authentication types (Module 2)
-export * from './types/auth';
-
-// Common API types
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  error?: string;
-}
-
-export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
-// Common enums
-export enum UserRole {
-  ADMIN = 'ADMIN',
-  USER = 'USER',
-  VIEWER = 'VIEWER'
-}
-
-export enum CustomerStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-  PROSPECT = 'PROSPECT'
+  quantity: number;
+  rate: number;
+  amount: number;
 }
 
 export enum InvoiceStatus {
@@ -115,8 +56,74 @@ export enum InvoiceStatus {
   OVERDUE = 'OVERDUE'
 }
 
+// Appointment types (for future Module 6)
+export interface Appointment {
+  id: string;
+  customerId: string;
+  title: string;
+  description: string;
+  startTime: Date;
+  endTime: Date;
+  status: AppointmentStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export enum AppointmentStatus {
   SCHEDULED = 'SCHEDULED',
+  CONFIRMED = 'CONFIRMED',
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED'
 }
+
+// Settings types (for future Module 5)
+export interface Settings {
+  id: string;
+  key: string;
+  value: string;
+  category: SettingsCategory;
+  updatedAt: Date;
+}
+
+export enum SettingsCategory {
+  BUSINESS = 'BUSINESS',
+  INVOICE = 'INVOICE',
+  EMAIL = 'EMAIL',
+  SYSTEM = 'SYSTEM'
+}
+
+// Common API response types
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
+
+// Error types
+export interface ValidationError {
+  field: string;
+  message: string;
+}
+
+export interface ApiError {
+  code: string;
+  message: string;
+  details?: string;
+}
+
+// Common utility types
+export type ID = string;
+export type Timestamp = Date;
+export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+export type RequireField<T, K extends keyof T> = T & Required<Pick<T, K>>;
