@@ -20,8 +20,7 @@ export class AuthController {
       if (!email || !password) {
         const error: AuthError = {
           success: false,
-          message: 'Email and password are required',
-          field: !email ? 'email' : 'password'
+          message: 'Email and password are required'
         };
         return res.status(400).json(error);
       }
@@ -31,31 +30,11 @@ export class AuthController {
         where: { email: email.toLowerCase() }
       });
 
-      if (!user) {
+      // Check user exists and password is correct
+      if (!user || !await bcrypt.compare(password, user.password)) {
         const error: AuthError = {
           success: false,
-          message: 'Invalid email or password',
-          field: 'email'
-        };
-        return res.status(401).json(error);
-      }
-
-      // Check if user is active
-      if (!user.isActive) {
-        const error: AuthError = {
-          success: false,
-          message: 'Account is disabled. Contact administrator.',
-        };
-        return res.status(401).json(error);
-      }
-
-      // Verify password
-      const isValidPassword = await bcrypt.compare(password, user.password);
-      if (!isValidPassword) {
-        const error: AuthError = {
-          success: false,
-          message: 'Invalid email or password',
-          field: 'password'
+          message: 'Invalid email or password'
         };
         return res.status(401).json(error);
       }
@@ -73,22 +52,13 @@ export class AuthController {
         { expiresIn: '7d' }
       );
 
-      // Update last login
+      // Update last login (optional tracking)
       await prisma.user.update({
         where: { id: user.id },
         data: { lastLogin: new Date() }
       });
 
-      // Create session record
-      await prisma.session.create({
-        data: {
-          userId: user.id,
-          token,
-          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
-        }
-      });
-
-      // Return success response (don't include password)
+      // Return success response (exclude password)
       const userResponse = {
         id: user.id,
         email: user.email,
@@ -105,14 +75,6 @@ export class AuthController {
         message: 'Login successful'
       };
 
-      // Set JWT as httpOnly cookie
-      res.cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-      });
-
       res.json(response);
 
     } catch (error) {
@@ -126,23 +88,12 @@ export class AuthController {
   }
 
   /**
-   * Logout user and invalidate session
+   * Logout user (frontend handles token removal)
    * POST /api/auth/logout
    */
   static async logout(req: Request, res: Response) {
     try {
-      const token = req.cookies.token || req.headers.authorization?.replace('Bearer ', '');
-
-      if (token) {
-        // Remove session from database
-        await prisma.session.deleteMany({
-          where: { token }
-        });
-      }
-
-      // Clear cookie
-      res.clearCookie('token');
-
+      // Simple logout - frontend will remove token from localStorage
       res.json({
         success: true,
         message: 'Logged out successfully'
@@ -163,7 +114,7 @@ export class AuthController {
    */
   static async me(req: Request, res: Response) {
     try {
-      // User info should be attached by auth middleware
+      // User info attached by auth middleware
       const userId = (req as any).user?.userId;
 
       if (!userId) {
