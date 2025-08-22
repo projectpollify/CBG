@@ -1,3 +1,7 @@
+# This will create the import script file automatically
+# Copy and paste this command:
+
+cat > backend/scripts/importCustomers.ts << 'EOF'
 import { PrismaClient } from '@prisma/client';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -111,3 +115,4 @@ async function importCustomers() {
 
 // Run the import
 importCustomers();
+EOF
