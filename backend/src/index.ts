@@ -1,105 +1,84 @@
-import express, { Express, Request, Response } from 'express';
+import express from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
-import compression from 'compression';
-import morgan from 'morgan';
-import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
+import authRoutes from './routes/auth';
 
-// Load environment variables
-dotenv.config();
-
-// Initialize Prisma Client
+const app = express();
 const prisma = new PrismaClient();
-
-// Create Express app
-const app: Express = express();
 const PORT = process.env.PORT || 3001;
 
-// ========== MIDDLEWARE ==========
-app.use(helmet()); // Security headers
+// Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: 'http://localhost:3000', // Frontend URL
   credentials: true
 }));
-app.use(compression()); // Compress responses
-app.use(morgan('dev')); // Logging
-app.use(express.json()); // Parse JSON bodies
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+app.use(express.json());
 
-// ========== HEALTH CHECK ==========
-app.get('/api/health', (req: Request, res: Response) => {
-  res.json({
-    status: 'healthy',
-    service: 'Cutting Board Guys API',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'Cutting Board Guys API is running',
+    timestamp: new Date().toISOString()
   });
 });
 
-// ========== TEST DATABASE CONNECTION ==========
-app.get('/api/test-db', async (req: Request, res: Response) => {
+// Database connection test
+app.get('/api/test-db', async (req, res) => {
   try {
     await prisma.$connect();
-    res.json({
-      status: 'success',
-      message: 'Database connection successful',
-      database: 'PostgreSQL'
+    res.json({ 
+      success: true, 
+      message: 'Database connected successfully' 
     });
   } catch (error) {
-    res.status(500).json({
-      status: 'error',
+    res.status(500).json({ 
+      success: false, 
       message: 'Database connection failed',
       error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
 
-// ========== BASIC ROUTES ==========
+// Authentication routes
+app.use('/api/auth', authRoutes);
 
-// Get all customers (placeholder)
-app.get('/api/customers', async (req: Request, res: Response) => {
+// Existing routes from Foundation Module
+app.get('/api/customers', async (req, res) => {
   try {
-    const customers = await prisma.customer.findMany({
-      orderBy: { businessName: 'asc' }
-    });
+    const customers = await prisma.customer.findMany();
     res.json({
       success: true,
-      count: customers.length,
       data: customers
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch customers',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      message: 'Failed to fetch customers'
     });
   }
 });
 
-// Get all invoices (placeholder)
-app.get('/api/invoices', async (req: Request, res: Response) => {
+app.get('/api/invoices', async (req, res) => {
   try {
     const invoices = await prisma.invoice.findMany({
-      include: { customer: true },
-      orderBy: { invoiceDate: 'desc' }
+      include: {
+        customer: true
+      }
     });
     res.json({
       success: true,
-      count: invoices.length,
       data: invoices
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch invoices',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      message: 'Failed to fetch invoices'
     });
   }
 });
 
-// Get settings (placeholder)
-app.get('/api/settings', async (req: Request, res: Response) => {
+app.get('/api/settings', async (req, res) => {
   try {
     const settings = await prisma.settings.findMany();
     res.json({
@@ -109,66 +88,29 @@ app.get('/api/settings', async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch settings',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      message: 'Failed to fetch settings'
     });
   }
 });
 
-// ========== 404 HANDLER ==========
-app.use((req: Request, res: Response) => {
+// 404 handler
+app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
-    message: 'Route not found',
-    path: req.path
+    message: 'Route not found'
   });
 });
 
-// ========== ERROR HANDLER ==========
-app.use((error: any, req: Request, res: Response, next: any) => {
-  console.error('Error:', error);
-  res.status(error.status || 500).json({
-    success: false,
-    message: error.message || 'Internal server error',
-    ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
-  });
+// Start server
+app.listen(PORT, () => {
+  console.log(`🥖 Cutting Board Guys API running on port ${PORT}`);
+  console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🔐 Auth endpoints: http://localhost:${PORT}/api/auth/*`);
 });
 
-// ========== START SERVER ==========
-const startServer = async () => {
-  try {
-    // Test database connection
-    await prisma.$connect();
-    console.log('✅ Database connected successfully');
-    
-    // Start listening
-    app.listen(PORT, () => {
-      console.log(`
-╔════════════════════════════════════════╗
-║     Cutting Board Guys Platform       ║
-║         Backend Server                 ║
-╠════════════════════════════════════════╣
-║  Status: RUNNING                       ║
-║  Port: ${PORT}                            ║
-║  Environment: ${process.env.NODE_ENV || 'development'}           ║
-║                                        ║
-║  API Endpoints:                        ║
-║  http://localhost:${PORT}/api/health      ║
-║  http://localhost:${PORT}/api/test-db     ║
-║  http://localhost:${PORT}/api/customers   ║
-║  http://localhost:${PORT}/api/invoices    ║
-║  http://localhost:${PORT}/api/settings    ║
-╚════════════════════════════════════════╝
-      `);
-    });
-  } catch (error) {
-    console.error('❌ Failed to start server:', error);
-    process.exit(1);
-  }
-};
-
-// Handle shutdown gracefully
+// Graceful shutdown
 process.on('SIGINT', async () => {
-  console.log('\n👋 Shutting down gracefully...');
+  console.log('Shutting down gracefully...');
   await prisma.$disconnect();
-  process.exit(0
+  process.exit(0);
+});
