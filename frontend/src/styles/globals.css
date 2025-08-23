@@ -42,6 +42,30 @@ body {
   background: #6B7280;
 }
 
+/* Animation Classes */
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.animate-fade-in-out {
+  animation: fadeInOut 2s ease-in-out forwards;
+}
+
 /* Cutting Board Guys Brand Classes */
 .cbg-gradient {
   background: linear-gradient(135deg, #003F7F 0%, #0052A3 100%);

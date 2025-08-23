@@ -4,14 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
-  CreateCustomerData, 
-  CustomerStatus,
-  CustomerFormErrors,
-  BC_REGIONS,
-  ApiResponse,
-  Customer
-} from '@/../../shared/src';
-import { 
   ArrowLeft, 
   Save, 
   Building2,
@@ -23,28 +15,75 @@ import {
   AlertCircle
 } from 'lucide-react';
 
+interface CustomerFormData {
+  contactName: string;
+  businessName: string;
+  email: string;
+  phone: string;
+  street: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  regionId: string;
+  status: 'ACTIVE' | 'INACTIVE' | 'PROSPECT';
+  notes: string;
+}
+
+const BC_CITIES = [
+  'Vancouver',
+  'North Vancouver', 
+  'West Vancouver',
+  'Burnaby',
+  'Richmond',
+  'Surrey',
+  'Coquitlam',
+  'Port Coquitlam',
+  'Port Moody',
+  'Langley',
+  'Abbotsford',
+  'Delta',
+  'New Westminster',
+  'Maple Ridge',
+  'White Rock',
+  'Victoria',
+  'Nanaimo',
+  'Kelowna',
+  'Kamloops',
+  'Prince George'
+];
+
 export default function AddCustomerPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<CustomerFormErrors>({});
+  const [errors, setErrors] = useState<Record<string, string | undefined>>({});
+  const [generalError, setGeneralError] = useState('');
   
-  const [formData, setFormData] = useState<CreateCustomerData>({
-    name: '',
-    company: '',
+  const [formData, setFormData] = useState<CustomerFormData>({
+    contactName: '',
+    businessName: '',
     email: '',
     phone: '',
-    address: '',
-    region: '',
-    status: CustomerStatus.ACTIVE,
+    street: '',
+    city: 'Vancouver',
+    province: 'BC',
+    postalCode: '',
+    regionId: '',
+    status: 'ACTIVE',
     notes: ''
   });
 
   // Handle form field changes
-  const handleChange = (field: keyof CreateCustomerData, value: string | CustomerStatus) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+  const handleChange = (field: keyof CustomerFormData, value: string) => {
+    setFormData(prev => {
+      const updated = { ...prev, [field]: value };
+      
+      // Auto-set regionId based on city
+      if (field === 'city') {
+        updated.regionId = value.toLowerCase().replace(/\s+/g, '-');
+      }
+      
+      return updated;
+    });
 
     // Clear error for this field when user starts typing
     if (errors[field]) {
@@ -53,34 +92,41 @@ export default function AddCustomerPage() {
         [field]: undefined
       }));
     }
+    setGeneralError('');
   };
 
   // Validate form
   const validateForm = (): boolean => {
-    const newErrors: CustomerFormErrors = {};
+    const newErrors: Record<string, string> = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = 'Customer name is required';
+    if (!formData.contactName.trim()) {
+      newErrors.contactName = 'Contact name is required';
     }
 
-    if (!formData.company.trim()) {
-      newErrors.company = 'Company name is required';
+    if (!formData.businessName.trim()) {
+      newErrors.businessName = 'Business name is required';
     }
 
-    if (!formData.address.trim()) {
-      newErrors.address = 'Address is required';
-    }
-
-    if (!formData.region.trim()) {
-      newErrors.region = 'Region is required';
-    }
-
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
     }
 
-    if (formData.phone && !/^[\d\s\-\+\(\)]+$/.test(formData.phone)) {
-      newErrors.phone = 'Please enter a valid phone number';
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    }
+
+    if (!formData.street.trim()) {
+      newErrors.street = 'Street address is required';
+    }
+
+    if (!formData.city.trim()) {
+      newErrors.city = 'City is required';
+    }
+
+    if (!formData.postalCode.trim()) {
+      newErrors.postalCode = 'Postal code is required';
     }
 
     setErrors(newErrors);
@@ -98,30 +144,32 @@ export default function AddCustomerPage() {
     setLoading(true);
 
     try {
+      // Set regionId if not set
+      const dataToSend = {
+        ...formData,
+        regionId: formData.regionId || formData.city.toLowerCase().replace(/\s+/g, '-')
+      };
+
       const response = await fetch('http://localhost:3001/api/customers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(dataToSend)
       });
 
-      const data: ApiResponse<Customer> = await response.json();
+      const data = await response.json();
 
       if (data.success) {
         // Success - redirect to customer list
         router.push('/customers');
       } else {
         // Show error
-        setErrors({ 
-          name: data.error || 'Failed to create customer' 
-        });
+        setGeneralError(data.error || 'Failed to create customer');
       }
     } catch (err) {
       console.error('Error creating customer:', err);
-      setErrors({ 
-        name: 'Network error. Please try again.' 
-      });
+      setGeneralError('Network error. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -152,61 +200,68 @@ export default function AddCustomerPage() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {generalError && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start">
+            <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-2 flex-shrink-0" />
+            <p className="text-red-600">{generalError}</p>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Customer Information Card */}
+          {/* Business Information Card */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200">
             <div className="px-6 py-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-                <User className="w-5 h-5 mr-2 text-cbg-orange" />
-                Customer Information
+                <Building2 className="w-5 h-5 mr-2 text-cbg-orange" />
+                Business Information
               </h2>
             </div>
             <div className="p-6 space-y-4">
-              {/* Customer Name */}
+              {/* Business Name */}
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Customer Name *
+                <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-1">
+                  Business Name *
                 </label>
                 <input
                   type="text"
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => handleChange('name', e.target.value)}
+                  id="businessName"
+                  value={formData.businessName}
+                  onChange={(e) => handleChange('businessName', e.target.value)}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-cbg-orange focus:border-transparent ${
-                    errors.name ? 'border-red-300' : 'border-gray-300'
+                    errors.businessName ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder="Enter customer name"
+                  placeholder="Enter business name"
                 />
-                {errors.name && (
+                {errors.businessName && (
                   <p className="mt-1 text-sm text-red-600 flex items-center">
                     <AlertCircle className="w-4 h-4 mr-1" />
-                    {errors.name}
+                    {errors.businessName}
                   </p>
                 )}
               </div>
 
-              {/* Company */}
+              {/* Contact Name */}
               <div>
-                <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
-                  Company *
+                <label htmlFor="contactName" className="block text-sm font-medium text-gray-700 mb-1">
+                  Contact Name *
                 </label>
                 <div className="relative">
-                  <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
                     type="text"
-                    id="company"
-                    value={formData.company}
-                    onChange={(e) => handleChange('company', e.target.value)}
+                    id="contactName"
+                    value={formData.contactName}
+                    onChange={(e) => handleChange('contactName', e.target.value)}
                     className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-cbg-orange focus:border-transparent ${
-                      errors.company ? 'border-red-300' : 'border-gray-300'
+                      errors.contactName ? 'border-red-300' : 'border-gray-300'
                     }`}
-                    placeholder="Enter company name"
+                    placeholder="Enter contact person's name"
                   />
                 </div>
-                {errors.company && (
+                {errors.contactName && (
                   <p className="mt-1 text-sm text-red-600 flex items-center">
                     <AlertCircle className="w-4 h-4 mr-1" />
-                    {errors.company}
+                    {errors.contactName}
                   </p>
                 )}
               </div>
@@ -219,11 +274,12 @@ export default function AddCustomerPage() {
                 <select
                   id="status"
                   value={formData.status}
-                  onChange={(e) => handleChange('status', e.target.value as CustomerStatus)}
+                  onChange={(e) => handleChange('status', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cbg-orange focus:border-transparent"
                 >
-                  <option value={CustomerStatus.ACTIVE}>Active</option>
-                  <option value={CustomerStatus.INACTIVE}>Inactive</option>
+                  <option value="ACTIVE">Active</option>
+                  <option value="INACTIVE">Inactive</option>
+                  <option value="PROSPECT">Prospect</option>
                 </select>
               </div>
             </div>
@@ -236,15 +292,12 @@ export default function AddCustomerPage() {
                 <Phone className="w-5 h-5 mr-2 text-cbg-orange" />
                 Contact Information
               </h2>
-              <p className="text-sm text-gray-600 mt-1">
-                Contact details will be updated when Sobeys/Save On data is integrated
-              </p>
             </div>
             <div className="p-6 space-y-4">
               {/* Email */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
+                  Email Address *
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -270,7 +323,7 @@ export default function AddCustomerPage() {
               {/* Phone */}
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number
+                  Phone Number *
                 </label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -304,51 +357,92 @@ export default function AddCustomerPage() {
               </h2>
             </div>
             <div className="p-6 space-y-4">
-              {/* Address */}
+              {/* Street Address */}
               <div>
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                  Address *
+                <label htmlFor="street" className="block text-sm font-medium text-gray-700 mb-1">
+                  Street Address *
                 </label>
                 <input
                   type="text"
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => handleChange('address', e.target.value)}
+                  id="street"
+                  value={formData.street}
+                  onChange={(e) => handleChange('street', e.target.value)}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-cbg-orange focus:border-transparent ${
-                    errors.address ? 'border-red-300' : 'border-gray-300'
+                    errors.street ? 'border-red-300' : 'border-gray-300'
                   }`}
                   placeholder="Enter street address"
                 />
-                {errors.address && (
+                {errors.street && (
                   <p className="mt-1 text-sm text-red-600 flex items-center">
                     <AlertCircle className="w-4 h-4 mr-1" />
-                    {errors.address}
+                    {errors.street}
                   </p>
                 )}
               </div>
 
-              {/* Region */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* City */}
+                <div>
+                  <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+                    City *
+                  </label>
+                  <select
+                    id="city"
+                    value={formData.city}
+                    onChange={(e) => handleChange('city', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-cbg-orange focus:border-transparent ${
+                      errors.city ? 'border-red-300' : 'border-gray-300'
+                    }`}
+                  >
+                    {BC_CITIES.map(city => (
+                      <option key={city} value={city}>{city}</option>
+                    ))}
+                  </select>
+                  {errors.city && (
+                    <p className="mt-1 text-sm text-red-600 flex items-center">
+                      <AlertCircle className="w-4 h-4 mr-1" />
+                      {errors.city}
+                    </p>
+                  )}
+                </div>
+
+                {/* Province */}
+                <div>
+                  <label htmlFor="province" className="block text-sm font-medium text-gray-700 mb-1">
+                    Province
+                  </label>
+                  <select
+                    id="province"
+                    value={formData.province}
+                    onChange={(e) => handleChange('province', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cbg-orange focus:border-transparent"
+                  >
+                    <option value="BC">British Columbia</option>
+                    <option value="AB">Alberta</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Postal Code */}
               <div>
-                <label htmlFor="region" className="block text-sm font-medium text-gray-700 mb-1">
-                  Region *
+                <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-1">
+                  Postal Code *
                 </label>
-                <select
-                  id="region"
-                  value={formData.region}
-                  onChange={(e) => handleChange('region', e.target.value)}
+                <input
+                  type="text"
+                  id="postalCode"
+                  value={formData.postalCode}
+                  onChange={(e) => handleChange('postalCode', e.target.value.toUpperCase())}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-cbg-orange focus:border-transparent ${
-                    errors.region ? 'border-red-300' : 'border-gray-300'
+                    errors.postalCode ? 'border-red-300' : 'border-gray-300'
                   }`}
-                >
-                  <option value="">Select a region</option>
-                  {BC_REGIONS.map(region => (
-                    <option key={region} value={region}>{region}</option>
-                  ))}
-                </select>
-                {errors.region && (
+                  placeholder="V0V 0V0"
+                  maxLength={7}
+                />
+                {errors.postalCode && (
                   <p className="mt-1 text-sm text-red-600 flex items-center">
                     <AlertCircle className="w-4 h-4 mr-1" />
-                    {errors.region}
+                    {errors.postalCode}
                   </p>
                 )}
               </div>
@@ -382,14 +476,14 @@ export default function AddCustomerPage() {
           <div className="flex items-center justify-end space-x-4 pt-6">
             <Link
               href="/customers"
-              className="cbg-button-secondary"
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
             >
               Cancel
             </Link>
             <button
               type="submit"
               disabled={loading}
-              className="cbg-button-primary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-cbg-orange text-white rounded-lg hover:bg-cbg-orange-dark transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>

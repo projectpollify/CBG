@@ -9,9 +9,10 @@ import {
   Settings, 
   Menu,
   X,
-  ChefHat
+  ChefHat,
+  BarChart3
 } from 'lucide-react';
-import './globals.css';
+import '../styles/globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -67,10 +68,18 @@ export default function RootLayout({
                     
                     <Link
                       href="/invoices"
-                      className="text-cbg-navy-light hover:bg-cbg-navy-light hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
+                      className="text-white hover:bg-cbg-navy-light px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
                     >
                       <FileText className="w-4 h-4" />
                       <span>Invoices</span>
+                    </Link>
+                    
+                    <Link
+                      href="/reports"
+                      className="text-white hover:bg-cbg-navy-light px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
+                    >
+                      <BarChart3 className="w-4 h-4" />
+                      <span>Reports</span>
                     </Link>
                     
                     <Link
@@ -83,7 +92,7 @@ export default function RootLayout({
                     
                     <Link
                       href="/settings"
-                      className="text-cbg-navy-light hover:bg-cbg-navy-light hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
+                      className="text-white hover:bg-cbg-navy-light px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1"
                     >
                       <Settings className="w-4 h-4" />
                       <span>Settings</span>
@@ -128,10 +137,18 @@ export default function RootLayout({
                 
                 <Link
                   href="/invoices"
-                  className="text-cbg-navy-light hover:bg-cbg-navy-light hover:text-white block px-3 py-2 rounded-md text-base font-medium flex items-center space-x-2"
+                  className="text-white hover:bg-cbg-navy-light block px-3 py-2 rounded-md text-base font-medium flex items-center space-x-2"
                 >
                   <FileText className="w-4 h-4" />
                   <span>Invoices</span>
+                </Link>
+                
+                <Link
+                  href="/reports"
+                  className="text-white hover:bg-cbg-navy-light block px-3 py-2 rounded-md text-base font-medium flex items-center space-x-2"
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  <span>Reports</span>
                 </Link>
                 
                 <Link
@@ -144,7 +161,7 @@ export default function RootLayout({
                 
                 <Link
                   href="/settings"
-                  className="text-cbg-navy-light hover:bg-cbg-navy-light hover:text-white block px-3 py-2 rounded-md text-base font-medium flex items-center space-x-2"
+                  className="text-white hover:bg-cbg-navy-light block px-3 py-2 rounded-md text-base font-medium flex items-center space-x-2"
                 >
                   <Settings className="w-4 h-4" />
                   <span>Settings</span>
@@ -170,7 +187,7 @@ export default function RootLayout({
                 </div>
                 
                 <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <span>Module 3: Customer Management</span>
+                  <span>Module 4: Invoice Management</span>
                   <div className="flex items-center space-x-1">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <span>Online</span>

@@ -3,29 +3,35 @@ import { PrismaClient, Customer, CustomerStatus } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export interface CreateCustomerData {
-  name: string;
-  company: string;
-  email?: string;
-  phone?: string;
-  address: string;
-  region: string;
+  contactName: string;
+  businessName: string;
+  email: string;
+  phone: string;
+  street: string;
+  city: string;
+  province?: string;
+  postalCode: string;
+  regionId: string;
   status?: CustomerStatus;
   notes?: string;
 }
 
 export interface UpdateCustomerData {
-  name?: string;
-  company?: string;
+  contactName?: string;
+  businessName?: string;
   email?: string;
   phone?: string;
-  address?: string;
-  region?: string;
+  street?: string;
+  city?: string;
+  province?: string;
+  postalCode?: string;
+  regionId?: string;
   status?: CustomerStatus;
   notes?: string;
 }
 
 export interface CustomerFilters {
-  region?: string;
+  regionId?: string;
   status?: CustomerStatus;
   search?: string;
   page?: number;
@@ -36,7 +42,7 @@ export class CustomerService {
   // Get all customers with optional filtering and pagination
   static async getCustomers(filters: CustomerFilters = {}) {
     const {
-      region,
+      regionId,
       status,
       search,
       page = 1,
@@ -48,8 +54,8 @@ export class CustomerService {
     // Build where clause
     const where: any = {};
 
-    if (region) {
-      where.region = region;
+    if (regionId) {
+      where.regionId = regionId;
     }
 
     if (status) {
@@ -58,10 +64,11 @@ export class CustomerService {
 
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { company: { contains: search, mode: 'insensitive' } },
+        { contactName: { contains: search, mode: 'insensitive' } },
+        { businessName: { contains: search, mode: 'insensitive' } },
         { email: { contains: search, mode: 'insensitive' } },
-        { address: { contains: search, mode: 'insensitive' } }
+        { street: { contains: search, mode: 'insensitive' } },
+        { city: { contains: search, mode: 'insensitive' } }
       ];
     }
 
@@ -72,8 +79,8 @@ export class CustomerService {
         take: limit,
         orderBy: [
           { status: 'asc' }, // Active customers first
-          { company: 'asc' },
-          { name: 'asc' }
+          { businessName: 'asc' },
+          { contactName: 'asc' }
         ]
       }),
       prisma.customer.count({ where })
@@ -174,18 +181,18 @@ export class CustomerService {
       prisma.customer.count({ where: { status: CustomerStatus.ACTIVE } }),
       prisma.customer.count({ where: { status: CustomerStatus.INACTIVE } }),
       prisma.customer.groupBy({
-        by: ['region'],
-        _count: { region: true },
-        orderBy: { _count: { region: 'desc' } }
+        by: ['regionId'],
+        _count: { regionId: true },
+        orderBy: { _count: { regionId: 'desc' } }
       }),
       prisma.customer.findMany({
         take: 5,
         orderBy: { createdAt: 'desc' },
         select: {
           id: true,
-          name: true,
-          company: true,
-          region: true,
+          contactName: true,
+          businessName: true,
+          regionId: true,
           createdAt: true
         }
       })
@@ -196,37 +203,37 @@ export class CustomerService {
       activeCustomers,
       inactiveCustomers,
       regionStats: regionStats.map(stat => ({
-        region: stat.region,
-        count: stat._count.region
+        region: stat.regionId,
+        count: stat._count.regionId
       })),
       recentCustomers
     };
   }
 
-  // Search customers by company name
-  static async searchByCompany(companyName: string): Promise<Customer[]> {
+  // Search customers by business name
+  static async searchByCompany(businessName: string): Promise<Customer[]> {
     return await prisma.customer.findMany({
       where: {
-        company: {
-          contains: companyName,
+        businessName: {
+          contains: businessName,
           mode: 'insensitive'
         }
       },
       orderBy: [
-        { company: 'asc' },
-        { name: 'asc' }
+        { businessName: 'asc' },
+        { contactName: 'asc' }
       ]
     });
   }
 
   // Get customers by region
-  static async getCustomersByRegion(region: string): Promise<Customer[]> {
+  static async getCustomersByRegion(regionId: string): Promise<Customer[]> {
     return await prisma.customer.findMany({
-      where: { region },
+      where: { regionId },
       orderBy: [
         { status: 'asc' },
-        { company: 'asc' },
-        { name: 'asc' }
+        { businessName: 'asc' },
+        { contactName: 'asc' }
       ]
     });
   }
@@ -234,12 +241,12 @@ export class CustomerService {
   // Get unique regions
   static async getRegions(): Promise<string[]> {
     const regions = await prisma.customer.findMany({
-      select: { region: true },
-      distinct: ['region'],
-      orderBy: { region: 'asc' }
+      select: { regionId: true },
+      distinct: ['regionId'],
+      orderBy: { regionId: 'asc' }
     });
 
-    return regions.map(r => r.region);
+    return regions.map(r => r.regionId);
   }
 
   // Bulk update customers (for data imports/updates)

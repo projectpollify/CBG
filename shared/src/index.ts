@@ -1,6 +1,15 @@
 // Re-export all customer types
 export * from './types/customer';
 
+// Re-export all invoice types
+export * from './types/invoice';
+
+// Re-export all auth types
+export * from './types/auth';
+
+// Re-export invoice utilities
+export * from './utils/invoiceCalculations';
+
 // Base user types (from Foundation Module)
 export interface User {
   id: string;
@@ -24,36 +33,6 @@ export interface Session {
   token: string;
   expiresAt: Date;
   createdAt: Date;
-}
-
-// Invoice types (for future Module 4)
-export interface Invoice {
-  id: string;
-  invoiceNumber: string;
-  customerId: string;
-  amount: number;
-  gst: number;
-  pst: number;
-  total: number;
-  items: InvoiceItem[];
-  status: InvoiceStatus;
-  dueDate: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface InvoiceItem {
-  description: string;
-  quantity: number;
-  rate: number;
-  amount: number;
-}
-
-export enum InvoiceStatus {
-  DRAFT = 'DRAFT',
-  SENT = 'SENT',
-  PAID = 'PAID',
-  OVERDUE = 'OVERDUE'
 }
 
 // Appointment types (for future Module 6)

@@ -62,7 +62,7 @@ export class AuthController {
       const userResponse = {
         id: user.id,
         email: user.email,
-        name: user.name,
+        name: `${user.firstName} ${user.lastName}`,
         role: user.role,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt
@@ -129,9 +129,10 @@ export class AuthController {
         select: {
           id: true,
           email: true,
-          name: true,
+          firstName: true,
+          lastName: true,
           role: true,
-          region: true,
+          regionId: true,
           createdAt: true,
           updatedAt: true,
           lastLogin: true
@@ -147,7 +148,10 @@ export class AuthController {
 
       res.json({
         success: true,
-        user
+        user: {
+          ...user,
+          name: `${user.firstName} ${user.lastName}`
+        }
       });
 
     } catch (error) {

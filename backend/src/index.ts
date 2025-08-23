@@ -4,6 +4,7 @@ import { PrismaClient } from '@prisma/client';
 
 // Import route handlers
 import customerRoutes from './routes/customers';
+import invoiceRoutes from './routes/invoices';
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -14,7 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 // Basic health check endpoint
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (_req, res) => {
   res.json({ 
     status: 'OK', 
     message: '🥖 Cutting Board Guys Backend is running!',
@@ -23,7 +24,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Database connection test
-app.get('/api/test-db', async (req, res) => {
+app.get('/api/test-db', async (_req, res) => {
   try {
     await prisma.$connect();
     const userCount = await prisma.user.count();
@@ -49,16 +50,9 @@ app.get('/api/test-db', async (req, res) => {
 
 // Register API routes
 app.use('/api/customers', customerRoutes);
+app.use('/api/invoices', invoiceRoutes);
 
-// Legacy endpoints for backwards compatibility
-app.get('/api/invoices', (req, res) => {
-  res.json({ 
-    invoices: [],
-    message: 'Invoice module coming in Module 4'
-  });
-});
-
-app.get('/api/settings', (req, res) => {
+app.get('/api/settings', (_req, res) => {
   res.json({ 
     settings: {},
     message: 'Settings module coming in Module 5'
@@ -81,6 +75,7 @@ app.listen(port, () => {
   console.log(`🔗 Health check: http://localhost:${port}/api/health`);
   console.log(`📊 Database test: http://localhost:${port}/api/test-db`);
   console.log(`👥 Customers API: http://localhost:${port}/api/customers`);
+  console.log(`📄 Invoices API: http://localhost:${port}/api/invoices`);
   console.log('✅ Backend ready for connections!\n');
 });
 

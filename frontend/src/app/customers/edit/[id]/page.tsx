@@ -32,16 +32,19 @@ export default function EditCustomerPage() {
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [errors, setErrors] = useState<CustomerFormErrors>({});
+  const [errors, setErrors] = useState<any>({});
   const [loadError, setLoadError] = useState<string | null>(null);
   
-  const [formData, setFormData] = useState<UpdateCustomerData>({
-    name: '',
-    company: '',
+  const [formData, setFormData] = useState<any>({
+    contactName: '',
+    businessName: '',
     email: '',
     phone: '',
-    address: '',
-    region: '',
+    street: '',
+    city: '',
+    province: 'BC',
+    postalCode: '',
+    regionId: '',
     status: CustomerStatus.ACTIVE,
     notes: ''
   });
@@ -55,16 +58,22 @@ export default function EditCustomerPage() {
         const data: ApiResponse<Customer> = await response.json();
 
         if (data.success && data.data) {
-          setCustomer(data.data);
+          const customerData: any = data.data;
+          setCustomer(customerData);
+          // Map the customer data to form fields
+          // The API returns the actual database fields
           setFormData({
-            name: data.data.name,
-            company: data.data.company,
-            email: data.data.email,
-            phone: data.data.phone,
-            address: data.data.address,
-            region: data.data.region,
-            status: data.data.status,
-            notes: data.data.notes
+            contactName: customerData.contactName || customerData.name || '',
+            businessName: customerData.businessName || customerData.company || '',
+            email: customerData.email || '',
+            phone: customerData.phone || '',
+            street: customerData.street || customerData.address || '',
+            city: customerData.city || '',
+            province: customerData.province || 'BC',
+            postalCode: customerData.postalCode || '',
+            regionId: customerData.regionId || customerData.region || '',
+            status: customerData.status || CustomerStatus.ACTIVE,
+            notes: customerData.notes || ''
           });
           setLoadError(null);
         } else {
@@ -84,7 +93,7 @@ export default function EditCustomerPage() {
   }, [customerId]);
 
   // Handle form field changes
-  const handleChange = (field: keyof UpdateCustomerData, value: string | CustomerStatus) => {
+  const handleChange = (field: string, value: string | CustomerStatus) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -101,22 +110,30 @@ export default function EditCustomerPage() {
 
   // Validate form
   const validateForm = (): boolean => {
-    const newErrors: CustomerFormErrors = {};
+    const newErrors: any = {};
 
-    if (!formData.name?.trim()) {
-      newErrors.name = 'Customer name is required';
+    if (!formData.contactName?.trim()) {
+      newErrors.name = 'Contact name is required';
     }
 
-    if (!formData.company?.trim()) {
-      newErrors.company = 'Company name is required';
+    if (!formData.businessName?.trim()) {
+      newErrors.company = 'Business name is required';
     }
 
-    if (!formData.address?.trim()) {
-      newErrors.address = 'Address is required';
+    if (!formData.street?.trim()) {
+      newErrors.address = 'Street address is required';
     }
 
-    if (!formData.region?.trim()) {
+    if (!formData.city?.trim()) {
+      newErrors.city = 'City is required';
+    }
+
+    if (!formData.regionId?.trim()) {
       newErrors.region = 'Region is required';
+    }
+
+    if (!formData.postalCode?.trim()) {
+      newErrors.postalCode = 'Postal code is required';
     }
 
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -220,7 +237,7 @@ export default function EditCustomerPage() {
               <div>
                 <h1 className="text-3xl font-bold text-cbg-navy">Edit Customer</h1>
                 <p className="text-gray-600 mt-1">
-                  Update customer information for {customer?.name}
+                  Update customer information for {(customer as any)?.contactName || (customer as any)?.name}
                 </p>
               </div>
             </div>
@@ -239,20 +256,20 @@ export default function EditCustomerPage() {
               </h2>
             </div>
             <div className="p-6 space-y-4">
-              {/* Customer Name */}
+              {/* Contact Name */}
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Customer Name *
+                <label htmlFor="contactName" className="block text-sm font-medium text-gray-700 mb-1">
+                  Contact Name *
                 </label>
                 <input
                   type="text"
-                  id="name"
-                  value={formData.name || ''}
-                  onChange={(e) => handleChange('name', e.target.value)}
+                  id="contactName"
+                  value={formData.contactName || ''}
+                  onChange={(e) => handleChange('contactName', e.target.value)}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-cbg-orange focus:border-transparent ${
                     errors.name ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder="Enter customer name"
+                  placeholder="Enter contact name"
                 />
                 {errors.name && (
                   <p className="mt-1 text-sm text-red-600 flex items-center">
@@ -262,22 +279,22 @@ export default function EditCustomerPage() {
                 )}
               </div>
 
-              {/* Company */}
+              {/* Business Name */}
               <div>
-                <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
-                  Company *
+                <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-1">
+                  Business Name *
                 </label>
                 <div className="relative">
                   <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
                     type="text"
-                    id="company"
-                    value={formData.company || ''}
-                    onChange={(e) => handleChange('company', e.target.value)}
+                    id="businessName"
+                    value={formData.businessName || ''}
+                    onChange={(e) => handleChange('businessName', e.target.value)}
                     className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-cbg-orange focus:border-transparent ${
                       errors.company ? 'border-red-300' : 'border-gray-300'
                     }`}
-                    placeholder="Enter company name"
+                    placeholder="Enter business name"
                   />
                 </div>
                 {errors.company && (
@@ -381,16 +398,16 @@ export default function EditCustomerPage() {
               </h2>
             </div>
             <div className="p-6 space-y-4">
-              {/* Address */}
+              {/* Street Address */}
               <div>
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                  Address *
+                <label htmlFor="street" className="block text-sm font-medium text-gray-700 mb-1">
+                  Street Address *
                 </label>
                 <input
                   type="text"
-                  id="address"
-                  value={formData.address || ''}
-                  onChange={(e) => handleChange('address', e.target.value)}
+                  id="street"
+                  value={formData.street || ''}
+                  onChange={(e) => handleChange('street', e.target.value)}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-cbg-orange focus:border-transparent ${
                     errors.address ? 'border-red-300' : 'border-gray-300'
                   }`}
@@ -404,15 +421,76 @@ export default function EditCustomerPage() {
                 )}
               </div>
 
+              {/* City and Province */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+                    City *
+                  </label>
+                  <input
+                    type="text"
+                    id="city"
+                    value={formData.city || ''}
+                    onChange={(e) => handleChange('city', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-cbg-orange focus:border-transparent ${
+                      errors.city ? 'border-red-300' : 'border-gray-300'
+                    }`}
+                    placeholder="Enter city"
+                  />
+                  {errors.city && (
+                    <p className="mt-1 text-sm text-red-600 flex items-center">
+                      <AlertCircle className="w-4 h-4 mr-1" />
+                      {errors.city}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label htmlFor="province" className="block text-sm font-medium text-gray-700 mb-1">
+                    Province
+                  </label>
+                  <input
+                    type="text"
+                    id="province"
+                    value={formData.province || 'BC'}
+                    onChange={(e) => handleChange('province', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cbg-orange focus:border-transparent"
+                    placeholder="Province"
+                  />
+                </div>
+              </div>
+
+              {/* Postal Code */}
+              <div>
+                <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-1">
+                  Postal Code *
+                </label>
+                <input
+                  type="text"
+                  id="postalCode"
+                  value={formData.postalCode || ''}
+                  onChange={(e) => handleChange('postalCode', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-cbg-orange focus:border-transparent ${
+                    errors.postalCode ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                  placeholder="Enter postal code"
+                />
+                {errors.postalCode && (
+                  <p className="mt-1 text-sm text-red-600 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {errors.postalCode}
+                  </p>
+                )}
+              </div>
+
               {/* Region */}
               <div>
-                <label htmlFor="region" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="regionId" className="block text-sm font-medium text-gray-700 mb-1">
                   Region *
                 </label>
                 <select
-                  id="region"
-                  value={formData.region || ''}
-                  onChange={(e) => handleChange('region', e.target.value)}
+                  id="regionId"
+                  value={formData.regionId || ''}
+                  onChange={(e) => handleChange('regionId', e.target.value)}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-cbg-orange focus:border-transparent ${
                     errors.region ? 'border-red-300' : 'border-gray-300'
                   }`}

@@ -8,7 +8,7 @@ const router = Router();
 router.get('/', async (req: Request, res: Response) => {
   try {
     const {
-      region,
+      regionId,
       status,
       search,
       page = '1',
@@ -16,7 +16,7 @@ router.get('/', async (req: Request, res: Response) => {
     } = req.query;
 
     const filters = {
-      region: region as string,
+      regionId: regionId as string,
       status: status as CustomerStatus,
       search: search as string,
       page: parseInt(page as string),
@@ -25,14 +25,14 @@ router.get('/', async (req: Request, res: Response) => {
 
     const result = await CustomerService.getCustomers(filters);
     
-    res.json({
+    return res.json({
       success: true,
       data: result.customers,
       pagination: result.pagination
     });
   } catch (error) {
     console.error('Error fetching customers:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to fetch customers'
     });
@@ -40,17 +40,17 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // GET /api/customers/stats - Get customer statistics
-router.get('/stats', async (req: Request, res: Response) => {
+router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const stats = await CustomerService.getCustomerStats();
     
-    res.json({
+    return res.json({
       success: true,
       data: stats
     });
   } catch (error) {
     console.error('Error fetching customer stats:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to fetch customer statistics'
     });
@@ -58,55 +58,55 @@ router.get('/stats', async (req: Request, res: Response) => {
 });
 
 // GET /api/customers/regions - Get all unique regions
-router.get('/regions', async (req: Request, res: Response) => {
+router.get('/regions', async (_req: Request, res: Response) => {
   try {
     const regions = await CustomerService.getRegions();
     
-    res.json({
+    return res.json({
       success: true,
       data: regions
     });
   } catch (error) {
     console.error('Error fetching regions:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to fetch regions'
     });
   }
 });
 
-// GET /api/customers/search/company/:companyName - Search by company name
-router.get('/search/company/:companyName', async (req: Request, res: Response) => {
+// GET /api/customers/search/company/:businessName - Search by business name
+router.get('/search/company/:businessName', async (req: Request, res: Response) => {
   try {
-    const { companyName } = req.params;
-    const customers = await CustomerService.searchByCompany(companyName);
+    const { businessName } = req.params;
+    const customers = await CustomerService.searchByCompany(businessName);
     
-    res.json({
+    return res.json({
       success: true,
       data: customers
     });
   } catch (error) {
     console.error('Error searching customers by company:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to search customers by company'
     });
   }
 });
 
-// GET /api/customers/region/:region - Get customers by region
-router.get('/region/:region', async (req: Request, res: Response) => {
+// GET /api/customers/region/:regionId - Get customers by region
+router.get('/region/:regionId', async (req: Request, res: Response) => {
   try {
-    const { region } = req.params;
-    const customers = await CustomerService.getCustomersByRegion(region);
+    const { regionId } = req.params;
+    const customers = await CustomerService.getCustomersByRegion(regionId);
     
-    res.json({
+    return res.json({
       success: true,
       data: customers
     });
   } catch (error) {
     console.error('Error fetching customers by region:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to fetch customers by region'
     });
@@ -126,13 +126,13 @@ router.get('/:id', async (req: Request, res: Response) => {
       });
     }
     
-    res.json({
+    return res.json({
       success: true,
       data: customer
     });
   } catch (error) {
     console.error('Error fetching customer:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to fetch customer'
     });
@@ -143,45 +143,51 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.post('/', async (req: Request, res: Response) => {
   try {
     const {
-      name,
-      company,
+      contactName,
+      businessName,
       email,
       phone,
-      address,
-      region,
+      street,
+      city,
+      province,
+      postalCode,
+      regionId,
       status,
       notes
     } = req.body;
 
     // Basic validation
-    if (!name || !company || !address || !region) {
+    if (!contactName || !businessName || !email || !phone || !street || !city || !postalCode || !regionId) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields: name, company, address, region'
+        error: 'Missing required fields: contactName, businessName, email, phone, street, city, postalCode, regionId'
       });
     }
 
     const customerData = {
-      name: name.trim(),
-      company: company.trim(),
-      email: email?.trim() || '',
-      phone: phone?.trim() || '',
-      address: address.trim(),
-      region: region.trim(),
+      contactName: contactName.trim(),
+      businessName: businessName.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
+      street: street.trim(),
+      city: city.trim(),
+      province: province?.trim() || 'BC',
+      postalCode: postalCode.trim(),
+      regionId: regionId.trim(),
       status: status || CustomerStatus.ACTIVE,
-      notes: notes?.trim() || ''
+      notes: notes?.trim() || null
     };
 
     const customer = await CustomerService.createCustomer(customerData);
     
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       data: customer,
       message: 'Customer created successfully'
     });
   } catch (error) {
     console.error('Error creating customer:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to create customer'
     });
@@ -193,12 +199,15 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const {
-      name,
-      company,
+      contactName,
+      businessName,
       email,
       phone,
-      address,
-      region,
+      street,
+      city,
+      province,
+      postalCode,
+      regionId,
       status,
       notes
     } = req.body;
@@ -206,18 +215,21 @@ router.put('/:id', async (req: Request, res: Response) => {
     const updateData: any = {};
 
     // Only update provided fields
-    if (name !== undefined) updateData.name = name.trim();
-    if (company !== undefined) updateData.company = company.trim();
+    if (contactName !== undefined) updateData.contactName = contactName.trim();
+    if (businessName !== undefined) updateData.businessName = businessName.trim();
     if (email !== undefined) updateData.email = email.trim();
     if (phone !== undefined) updateData.phone = phone.trim();
-    if (address !== undefined) updateData.address = address.trim();
-    if (region !== undefined) updateData.region = region.trim();
+    if (street !== undefined) updateData.street = street.trim();
+    if (city !== undefined) updateData.city = city.trim();
+    if (province !== undefined) updateData.province = province.trim();
+    if (postalCode !== undefined) updateData.postalCode = postalCode.trim();
+    if (regionId !== undefined) updateData.regionId = regionId.trim();
     if (status !== undefined) updateData.status = status;
-    if (notes !== undefined) updateData.notes = notes.trim();
+    if (notes !== undefined) updateData.notes = notes ? notes.trim() : null;
 
     const customer = await CustomerService.updateCustomer(id, updateData);
     
-    res.json({
+    return res.json({
       success: true,
       data: customer,
       message: 'Customer updated successfully'
@@ -230,7 +242,7 @@ router.put('/:id', async (req: Request, res: Response) => {
         error: 'Customer not found'
       });
     }
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to update customer'
     });
@@ -243,7 +255,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const customer = await CustomerService.deleteCustomer(id);
     
-    res.json({
+    return res.json({
       success: true,
       data: customer,
       message: 'Customer deactivated successfully'
@@ -256,7 +268,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
         error: 'Customer not found'
       });
     }
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to deactivate customer'
     });
@@ -269,7 +281,7 @@ router.delete('/:id/hard', async (req: Request, res: Response) => {
     const { id } = req.params;
     await CustomerService.hardDeleteCustomer(id);
     
-    res.json({
+    return res.json({
       success: true,
       message: 'Customer permanently deleted'
     });
@@ -281,7 +293,7 @@ router.delete('/:id/hard', async (req: Request, res: Response) => {
         error: 'Customer not found'
       });
     }
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to delete customer'
     });
@@ -302,14 +314,14 @@ router.post('/bulk-update', async (req: Request, res: Response) => {
 
     const result = await CustomerService.bulkUpdateCustomers(updates);
     
-    res.json({
+    return res.json({
       success: true,
       data: result,
       message: `Bulk update completed: ${result.successful} successful, ${result.failed} failed`
     });
   } catch (error) {
     console.error('Error in bulk update:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to perform bulk update'
     });
