@@ -159,14 +159,13 @@ export class InvoiceController {
       }
 
       // Get company info for the email template
-      const settingsService = new SettingsService();
-      const companyInfo = await settingsService.getCompanyInfo();
+      const companyInfo = await SettingsService.getCompanyInfo();
 
       // Generate the email HTML
-      const emailHTML = EmailService.generateInvoiceEmailHTML(invoice, companyInfo);
+      const emailHTML = EmailService.generateInvoiceEmailHTML(invoice as any, companyInfo);
 
       // Prepare email details
-      const recipient = emailTo || invoice.customer?.email;
+      const recipient = emailTo || (invoice as any).customer?.email;
       if (!recipient) {
         res.status(400).json({
           success: false,

@@ -347,25 +347,28 @@ export default function CustomersPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-3">
                           <Link
                             href={`/customers/edit/${customer.id}`}
-                            className="text-cbg-orange hover:text-cbg-orange-dark"
+                            className="text-cbg-orange hover:text-cbg-orange-dark transition-colors p-1 rounded hover:bg-orange-50"
                             title="Edit Customer"
+                            aria-label="Edit Customer"
                           >
                             <Edit className="w-5 h-5" />
                           </Link>
                           <Link
                             href={`/invoices/create?customerId=${customer.id}`}
-                            className="text-blue-600 hover:text-blue-900"
+                            className="text-blue-600 hover:text-blue-900 transition-colors p-1 rounded hover:bg-blue-50"
                             title="Create Invoice"
+                            aria-label="Create Invoice for this customer"
                           >
                             <FileText className="w-5 h-5" />
                           </Link>
                           <button
                             onClick={() => handleDelete(customer.id)}
-                            className="text-red-600 hover:text-red-900"
+                            className="text-red-600 hover:text-red-900 transition-colors p-1 rounded hover:bg-red-50"
                             title="Delete Customer"
+                            aria-label="Delete Customer"
                           >
                             <Trash2 className="w-5 h-5" />
                           </button>

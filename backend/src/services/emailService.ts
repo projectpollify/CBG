@@ -33,21 +33,30 @@ export class EmailService {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Invoice #${invoice.invoiceNumber.toString().padStart(5, '0')}</title>
+  <style>
+    @media only screen and (max-width: 600px) {
+      .invoice-container { padding: 0 !important; }
+      .content-padding { padding: 20px !important; }
+      .invoice-details-box { max-width: 100% !important; }
+      .hide-on-mobile { display: none !important; }
+      .stack-on-mobile { width: 100% !important; display: block !important; }
+    }
+  </style>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
-  <div style="max-width: 800px; margin: 0 auto; background-color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  <div class="invoice-container" style="max-width: 600px; margin: 0 auto; background-color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
     
     <!-- Header -->
     <div style="background: linear-gradient(135deg, #003F7F 0%, #002a55 100%); color: white; padding: 40px 30px;">
       <table width="100%">
         <tr>
           <td>
-            <h1 style="margin: 0; font-size: 32px; font-weight: 700;">${companyInfo.name}</h1>
-            <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 14px;">Professional Cutting Board Services</p>
+            <h1 style="margin: 0; font-size: 32px; font-weight: 700; color: white;">${companyInfo.name}</h1>
+            <p style="margin: 10px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">Professional Cutting Board Services</p>
           </td>
           <td style="text-align: right;">
             <div style="background-color: #FF6B35; display: inline-block; padding: 10px 20px; border-radius: 5px;">
-              <h2 style="margin: 0; font-size: 24px;">INVOICE</h2>
+              <h2 style="margin: 0; font-size: 24px; color: white;">INVOICE</h2>
             </div>
           </td>
         </tr>
@@ -55,40 +64,37 @@ export class EmailService {
     </div>
 
     <!-- Invoice Info -->
-    <div style="padding: 30px;">
-      <table width="100%" style="margin-bottom: 30px;">
-        <tr>
-          <td style="width: 50%;">
-            <h3 style="color: #003F7F; margin: 0 0 15px 0; font-size: 18px;">From:</h3>
-            <div style="color: #333; line-height: 1.6;">
-              <strong>${companyInfo.name}</strong><br>
-              ${companyInfo.address}<br>
-              ${companyInfo.city}, ${companyInfo.province} ${companyInfo.postalCode}<br>
-              Email: ${companyInfo.email}<br>
-              Phone: ${companyInfo.phone}<br>
-              GST #: ${companyInfo.gstNumber}
-            </div>
-          </td>
-          <td style="width: 50%; text-align: right;">
-            <div style="background-color: #f8f8f8; padding: 15px; border-radius: 5px; display: inline-block;">
-              <table>
-                <tr>
-                  <td style="padding: 5px 10px; text-align: left;"><strong>Invoice #:</strong></td>
-                  <td style="padding: 5px 10px;">${invoice.invoiceNumber.toString().padStart(5, '0')}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 5px 10px; text-align: left;"><strong>Date:</strong></td>
-                  <td style="padding: 5px 10px;">${formatDate(invoice.invoiceDate)}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 5px 10px; text-align: left;"><strong>Due Date:</strong></td>
-                  <td style="padding: 5px 10px;">${formatDate(invoice.dueDate)}</td>
-                </tr>
-              </table>
-            </div>
-          </td>
-        </tr>
-      </table>
+    <div class="content-padding" style="padding: 30px;">
+      <!-- From Section -->
+      <div style="margin-bottom: 35px;">
+        <h3 style="color: #003F7F; margin: 0 0 15px 0; font-size: 18px;">From:</h3>
+        <div style="color: #333; line-height: 1.8;">
+          <strong>${companyInfo.name}</strong><br>
+          ${companyInfo.address}<br>
+          ${companyInfo.city}, ${companyInfo.province} ${companyInfo.postalCode}<br>
+          Email: ${companyInfo.email}<br>
+          Phone: ${companyInfo.phone}<br>
+          GST #: ${companyInfo.gstNumber}
+        </div>
+      </div>
+
+      <!-- Invoice Details Box -->
+      <div style="margin-bottom: 35px;">
+        <div class="invoice-details-box" style="background-color: #f8f8f8; padding: 20px; border-radius: 5px; max-width: 300px;">
+          <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #e0e0e0;">
+            <strong style="color: #003F7F; display: block; margin-bottom: 5px;">Invoice #:</strong>
+            <span style="font-size: 20px; font-weight: 600;">${invoice.invoiceNumber.toString().padStart(5, '0')}</span>
+          </div>
+          <div style="margin-bottom: 15px;">
+            <strong style="color: #003F7F; display: block; margin-bottom: 5px;">Date:</strong>
+            <span>${formatDate(invoice.invoiceDate)}</span>
+          </div>
+          <div>
+            <strong style="color: #003F7F; display: block; margin-bottom: 5px;">Due Date:</strong>
+            <span>${formatDate(invoice.dueDate)}</span>
+          </div>
+        </div>
+      </div>
 
       <!-- Bill To -->
       <div style="margin-bottom: 30px;">
@@ -107,10 +113,10 @@ export class EmailService {
       <table width="100%" style="border-collapse: collapse; margin-bottom: 30px;">
         <thead>
           <tr style="background-color: #003F7F; color: white;">
-            <th style="padding: 12px; text-align: left;">Description</th>
-            <th style="padding: 12px; text-align: center;">Quantity</th>
-            <th style="padding: 12px; text-align: right;">Rate</th>
-            <th style="padding: 12px; text-align: right;">Amount</th>
+            <th style="padding: 12px; text-align: left; color: white;">Description</th>
+            <th style="padding: 12px; text-align: center; color: white;">Quantity</th>
+            <th style="padding: 12px; text-align: right; color: white;">Rate</th>
+            <th style="padding: 12px; text-align: right; color: white;">Amount</th>
           </tr>
         </thead>
         <tbody>
