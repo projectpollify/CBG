@@ -1,5 +1,6 @@
 import { Invoice, CompanyInfo, InvoiceLineItem } from 'cbg-shared';
 import { SettingsService } from './settingsService';
+import { Resend } from 'resend';
 
 export class EmailService {
   static generateInvoiceEmailHTML(
@@ -185,28 +186,61 @@ export class EmailService {
     cc?: string[],
     bcc?: string[],
     customSubject?: string,
-    customMessage?: string
+    emailHTML?: string
   ): Promise<{ success: boolean; message: string }> {
-    // Note: In a production environment, you would integrate with an email service like:
-    // - SendGrid
-    // - AWS SES
-    // - Mailgun
-    // - SMTP server
-    
-    // For now, we'll simulate email sending
-    console.log(`Sending invoice ${invoiceId} to ${to}`);
-    console.log('CC:', cc);
-    console.log('BCC:', bcc);
-    console.log('Subject:', customSubject);
-    console.log('Message:', customMessage);
-
-    // Simulate async email sending
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    return {
-      success: true,
-      message: `Invoice email would be sent to ${to}. Note: Email service integration required for production.`
-    };
+    try {
+      // Initialize Resend with API key if available
+      const apiKey = process.env.RESEND_API_KEY;
+      
+      if (!apiKey) {
+        // Fallback to simulation mode if no API key
+        console.log(`[SIMULATION MODE] Would send invoice ${invoiceId} to ${to}`);
+        console.log('CC:', cc);
+        console.log('BCC:', bcc);
+        console.log('Subject:', customSubject);
+        console.log('Email HTML provided:', emailHTML ? 'Yes' : 'No');
+        
+        return {
+          success: true,
+          message: `Invoice email simulated (no Resend API key configured). Would send to ${to}.`
+        };
+      }
+      
+      // Initialize Resend
+      const resend = new Resend(apiKey);
+      
+      // Prepare the email message
+      const emailData = {
+        from: process.env.RESEND_FROM_EMAIL || 'Cutting Board Guys <onboarding@resend.dev>',
+        to: [to],
+        subject: customSubject || `Invoice from Cutting Board Guys`,
+        html: emailHTML || '<p>Invoice attached</p>',
+        cc: cc,
+        bcc: bcc
+      };
+      
+      // Remove undefined fields
+      if (!emailData.cc || emailData.cc.length === 0) delete emailData.cc;
+      if (!emailData.bcc || emailData.bcc.length === 0) delete emailData.bcc;
+      
+      // Send the email
+      const { data, error } = await resend.emails.send(emailData);
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+      
+      return {
+        success: true,
+        message: `Invoice email successfully sent to ${to}`
+      };
+    } catch (error) {
+      console.error('Error sending email:', error);
+      return {
+        success: false,
+        message: `Failed to send email: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
+    }
   }
 
   static generateEmailSubject(invoiceNumber: number, template?: string): string {

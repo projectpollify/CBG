@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { InvoiceService } from '../services/invoiceService';
 import { SettingsService } from '../services/settingsService';
+import { EmailService } from '../services/emailService';
 import {
   CreateInvoiceDTO,
   UpdateInvoiceDTO,
@@ -145,15 +146,60 @@ export class InvoiceController {
   static async sendInvoice(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const { emailTo } = req.body;
+      const { emailTo, cc, bcc, customSubject, customMessage } = req.body;
 
-      const invoice = await InvoiceService.markInvoiceAsSent(id, emailTo);
-      
-      res.json({
-        success: true,
-        data: invoice,
-        message: 'Invoice marked as sent'
-      });
+      // Get the invoice with customer details
+      const invoice = await InvoiceService.getInvoice(id);
+      if (!invoice) {
+        res.status(404).json({
+          success: false,
+          error: 'Invoice not found'
+        });
+        return;
+      }
+
+      // Get company info for the email template
+      const settingsService = new SettingsService();
+      const companyInfo = await settingsService.getCompanyInfo();
+
+      // Generate the email HTML
+      const emailHTML = EmailService.generateInvoiceEmailHTML(invoice, companyInfo);
+
+      // Prepare email details
+      const recipient = emailTo || invoice.customer?.email;
+      if (!recipient) {
+        res.status(400).json({
+          success: false,
+          error: 'No email address provided and customer has no email on file'
+        });
+        return;
+      }
+
+      // Send the actual email
+      const emailResult = await EmailService.sendInvoiceEmail(
+        id,
+        recipient,
+        cc,
+        bcc,
+        customSubject || EmailService.generateEmailSubject(invoice.invoiceNumber),
+        emailHTML
+      );
+
+      if (emailResult.success) {
+        // Mark invoice as sent
+        const updatedInvoice = await InvoiceService.markInvoiceAsSent(id, recipient);
+        
+        res.json({
+          success: true,
+          data: updatedInvoice,
+          message: emailResult.message
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          error: emailResult.message
+        });
+      }
     } catch (error: any) {
       console.error('Error sending invoice:', error);
       res.status(500).json({
