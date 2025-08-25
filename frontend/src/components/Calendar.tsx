@@ -137,24 +137,26 @@ export default function Calendar({
     }
   };
 
-  const calendarEvents = appointments.map(apt => ({
-    id: apt.id,
-    title: apt.title,
-    start: apt.startDate,
-    end: apt.endDate,
-    allDay: apt.allDay,
-    backgroundColor: getTypeColor(apt.type),
-    borderColor: getTypeColor(apt.type),
-    opacity: getStatusOpacity(apt.status),
-    extendedProps: {
-      description: apt.description,
-      type: apt.type,
-      status: apt.status,
-      customerId: apt.customerId,
-      customerName: apt.customerName,
-      location: apt.location
-    }
-  }));
+  const calendarEvents = appointments
+    .filter(apt => apt.status !== 'COMPLETED')
+    .map(apt => ({
+      id: apt.id,
+      title: apt.title,
+      start: apt.startDate,
+      end: apt.endDate,
+      allDay: apt.allDay,
+      backgroundColor: getTypeColor(apt.type),
+      borderColor: getTypeColor(apt.type),
+      opacity: getStatusOpacity(apt.status),
+      extendedProps: {
+        description: apt.description,
+        type: apt.type,
+        status: apt.status,
+        customerId: apt.customerId,
+        customerName: apt.customerName,
+        location: apt.location
+      }
+    }));
 
   if (loading) {
     return (
