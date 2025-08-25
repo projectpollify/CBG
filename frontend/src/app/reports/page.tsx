@@ -41,9 +41,10 @@ export default function ReportsPage() {
       title: 'Customer Analysis',
       description: 'Top customers by revenue and customer lifetime value',
       icon: BarChart3,
-      href: '/reports/invoices#customers',
+      href: '#',
       color: 'bg-[#FF6B35]',
-      stats: 'Top 10 customers'
+      stats: 'Coming Soon',
+      isComingSoon: true
     }
   ];
 
@@ -76,34 +77,46 @@ export default function ReportsPage() {
 
       {/* Report Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {reportCards.map((card) => (
-          <Link
-            key={card.href}
-            href={card.href}
-            className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow"
-          >
-            <div className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className={`${card.color} p-3 rounded-lg`}>
-                  <card.icon className="w-6 h-6 text-white" />
+        {reportCards.map((card) => {
+          const isComingSoon = (card as any).isComingSoon;
+          const CardWrapper = isComingSoon ? 'div' : Link;
+          const cardProps = isComingSoon 
+            ? { className: "bg-white rounded-lg shadow opacity-75 cursor-not-allowed" }
+            : { href: card.href, className: "bg-white rounded-lg shadow hover:shadow-lg transition-shadow" };
+          
+          return (
+            <CardWrapper
+              key={card.href}
+              {...cardProps}
+            >
+              <div className="p-6 relative">
+                {isComingSoon && (
+                  <div className="absolute top-4 right-4 bg-gray-500 text-white text-xs font-semibold px-2 py-1 rounded">
+                    COMING SOON
+                  </div>
+                )}
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`${card.color} p-3 rounded-lg ${isComingSoon ? 'opacity-60' : ''}`}>
+                    <card.icon className="w-6 h-6 text-white" />
+                  </div>
+                  {!isComingSoon && <ChevronRight className="w-5 h-5 text-gray-400" />}
                 </div>
-                <ChevronRight className="w-5 h-5 text-gray-400" />
+                
+                <h3 className={`text-xl font-semibold mb-2 ${isComingSoon ? 'text-gray-500' : 'text-[#003F7F]'}`}>
+                  {card.title}
+                </h3>
+                
+                <p className={`mb-3 ${isComingSoon ? 'text-gray-400' : 'text-gray-600'}`}>
+                  {card.description}
+                </p>
+                
+                <div className={`text-sm font-medium ${isComingSoon ? 'text-gray-400' : 'text-[#FF6B35]'}`}>
+                  {card.stats}
+                </div>
               </div>
-              
-              <h3 className="text-xl font-semibold text-[#003F7F] mb-2">
-                {card.title}
-              </h3>
-              
-              <p className="text-gray-600 mb-3">
-                {card.description}
-              </p>
-              
-              <div className="text-sm font-medium text-[#FF6B35]">
-                {card.stats}
-              </div>
-            </div>
-          </Link>
-        ))}
+            </CardWrapper>
+          );
+        })}
       </div>
 
       {/* Summary Stats */}

@@ -47,21 +47,29 @@ export class EmailService {
   <div class="invoice-container" style="max-width: 600px; margin: 0 auto; background-color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
     
     <!-- Header -->
-    <div style="background: linear-gradient(135deg, #003F7F 0%, #002a55 100%); color: white; padding: 40px 30px;">
-      <table width="100%">
-        <tr>
-          <td>
-            <h1 style="margin: 0; font-size: 32px; font-weight: 700; color: white;">${companyInfo.name}</h1>
-            <p style="margin: 10px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">Professional Cutting Board Services</p>
-          </td>
-          <td style="text-align: right;">
-            <div style="background-color: #FF6B35; display: inline-block; padding: 10px 20px; border-radius: 5px;">
-              <h2 style="margin: 0; font-size: 24px; color: white;">INVOICE</h2>
-            </div>
-          </td>
-        </tr>
-      </table>
-    </div>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #003F7F;">
+      <tr>
+        <td style="background-color: #003F7F; padding: 40px 30px;">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td style="background-color: #003F7F;">
+                <h1 style="margin: 0; font-size: 32px; font-weight: 700; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF;">${companyInfo.name}</h1>
+                <p style="margin: 10px 0 0 0; color: #FFFFFF !important; font-size: 14px; -webkit-text-fill-color: #FFFFFF;">Professional Cutting Board Services</p>
+              </td>
+              <td style="text-align: right; background-color: #003F7F;">
+                <table cellpadding="0" cellspacing="0" border="0" align="right">
+                  <tr>
+                    <td style="background-color: #FF6B35; padding: 10px 20px; border-radius: 5px;">
+                      <h2 style="margin: 0; font-size: 24px; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF;">INVOICE</h2>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
 
     <!-- Invoice Info -->
     <div class="content-padding" style="padding: 30px;">

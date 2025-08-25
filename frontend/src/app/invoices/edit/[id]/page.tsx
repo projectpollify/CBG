@@ -563,15 +563,6 @@ export default function EditInvoicePage() {
             Mark as Sent
           </button>
         )}
-        {status === InvoiceStatus.SENT && (
-          <button
-            onClick={handleMarkAsPaid}
-            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-            disabled={saving || !paymentMethod}
-          >
-            Mark as Paid
-          </button>
-        )}
       </div>
     </div>
   );

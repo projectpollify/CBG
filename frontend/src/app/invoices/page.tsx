@@ -18,6 +18,7 @@ export default function InvoicesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [statusFilter, setStatusFilter] = useState<InvoiceStatus | ''>('');
+  const [activeCard, setActiveCard] = useState<string>(''); // Track which card is active
 
   useEffect(() => {
     fetchInvoices();
@@ -141,28 +142,73 @@ export default function InvoicesPage() {
       {/* Statistics Cards */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow">
+          <div 
+            className={`bg-white p-6 rounded-lg shadow cursor-pointer transition-all hover:shadow-lg border-2 border-[#003F7F] ${
+              activeCard === 'ALL' ? 'ring-2 ring-[#FF6B35]' : ''
+            }`}
+            onClick={() => {
+              setActiveCard(activeCard === 'ALL' ? '' : 'ALL');
+              setStatusFilter('');
+              setCurrentPage(1);
+            }}
+          >
             <div className="text-sm text-gray-600 mb-2">Total Invoices</div>
             <div className="text-2xl font-bold text-[#003F7F]">{stats.totalInvoices}</div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-sm text-gray-600 mb-2">Draft</div>
+          <div 
+            className={`bg-white p-6 rounded-lg shadow cursor-pointer transition-all hover:shadow-lg border-2 border-gray-400 ${
+              activeCard === 'DRAFT' ? 'ring-2 ring-[#FF6B35]' : ''
+            }`}
+            onClick={() => {
+              setActiveCard(activeCard === 'DRAFT' ? '' : 'DRAFT');
+              setStatusFilter(activeCard === 'DRAFT' ? '' : 'DRAFT');
+              setCurrentPage(1);
+            }}
+          >
+            <div className="text-sm text-gray-600 mb-2">Draft Invoices</div>
             <div className="text-2xl font-bold text-gray-600">
               {invoices.filter(i => i.status === 'DRAFT').length}
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-sm text-gray-600 mb-2">Sent</div>
+          <div 
+            className={`bg-white p-6 rounded-lg shadow cursor-pointer transition-all hover:shadow-lg border-2 border-blue-500 ${
+              activeCard === 'SENT' ? 'ring-2 ring-[#FF6B35]' : ''
+            }`}
+            onClick={() => {
+              setActiveCard(activeCard === 'SENT' ? '' : 'SENT');
+              setStatusFilter(activeCard === 'SENT' ? '' : 'SENT');
+              setCurrentPage(1);
+            }}
+          >
+            <div className="text-sm text-gray-600 mb-2">Invoices Sent</div>
             <div className="text-2xl font-bold text-blue-600">
               {invoices.filter(i => i.status === 'SENT').length}
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-sm text-gray-600 mb-2">Paid</div>
+          <div 
+            className={`bg-white p-6 rounded-lg shadow cursor-pointer transition-all hover:shadow-lg border-2 border-green-500 ${
+              activeCard === 'PAID' ? 'ring-2 ring-[#FF6B35]' : ''
+            }`}
+            onClick={() => {
+              setActiveCard(activeCard === 'PAID' ? '' : 'PAID');
+              setStatusFilter(activeCard === 'PAID' ? '' : 'PAID');
+              setCurrentPage(1);
+            }}
+          >
+            <div className="text-sm text-gray-600 mb-2">Invoices Paid</div>
             <div className="text-2xl font-bold text-green-600">{stats.paidInvoices}</div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-sm text-gray-600 mb-2">Overdue</div>
+          <div 
+            className={`bg-white p-6 rounded-lg shadow cursor-pointer transition-all hover:shadow-lg border-2 border-red-500 ${
+              activeCard === 'OVERDUE' ? 'ring-2 ring-[#FF6B35]' : ''
+            }`}
+            onClick={() => {
+              setActiveCard(activeCard === 'OVERDUE' ? '' : 'OVERDUE');
+              setStatusFilter(activeCard === 'OVERDUE' ? '' : 'OVERDUE');
+              setCurrentPage(1);
+            }}
+          >
+            <div className="text-sm text-gray-600 mb-2">Invoices Overdue</div>
             <div className="text-2xl font-bold text-red-600">{stats.overdueInvoices}</div>
           </div>
         </div>
@@ -183,7 +229,9 @@ export default function InvoicesPage() {
           <select
             value={statusFilter}
             onChange={(e) => {
-              setStatusFilter(e.target.value as InvoiceStatus | '');
+              const newStatus = e.target.value as InvoiceStatus | '';
+              setStatusFilter(newStatus);
+              setActiveCard(newStatus || '');
               setCurrentPage(1);
             }}
             className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B35]"

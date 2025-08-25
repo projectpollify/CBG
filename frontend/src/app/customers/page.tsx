@@ -167,7 +167,7 @@ export default function CustomersPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow p-6 border-2 border-cbg-orange">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Total Customers</p>
@@ -176,7 +176,7 @@ export default function CustomersPage() {
             <Building className="w-10 h-10 text-cbg-orange" />
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow p-6 border-2 border-green-500">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Active</p>
@@ -187,7 +187,7 @@ export default function CustomersPage() {
             <User className="w-10 h-10 text-green-500" />
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow p-6 border-2 border-blue-500">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Regions</p>
@@ -196,7 +196,7 @@ export default function CustomersPage() {
             <MapPin className="w-10 h-10 text-blue-500" />
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow p-6 border-2 border-gray-400">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">This Page</p>

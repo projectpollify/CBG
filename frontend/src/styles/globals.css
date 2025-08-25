@@ -98,6 +98,30 @@ body {
   100% { transform: rotate(360deg); }
 }
 
+/* FullCalendar Custom Styles */
+.fc-event {
+  border: none !important;
+  padding: 2px 4px !important;
+  font-size: 0.875rem !important;
+  border-radius: 4px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.fc-daygrid-event {
+  margin: 1px 2px !important;
+  overflow: hidden !important;
+}
+
+.fc-daygrid-day-frame {
+  overflow: hidden !important;
+}
+
+.fc-event-time {
+  font-weight: 600;
+}
+
 /* Button Hover Effects */
 .cbg-button-primary {
   background-color: #003F7F;
@@ -133,4 +157,179 @@ body {
 *:focus-visible {
   outline: 2px solid #FF6B35;
   outline-offset: 2px;
+}
+
+/* FullCalendar Custom Styling - CBG Theme */
+.fc {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Calendar toolbar buttons - CBG Blue */
+.fc-button-primary {
+  background-color: #003F7F !important;
+  border-color: #003F7F !important;
+  color: white !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+}
+
+.fc-button-primary:hover {
+  background-color: #002A5C !important;
+  border-color: #002A5C !important;
+  transform: translateY(-1px) !important;
+}
+
+.fc-button-primary:focus {
+  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.5) !important;
+}
+
+.fc-button-active {
+  background-color: #002A5C !important;
+  border-color: #002A5C !important;
+}
+
+/* Today button when highlighted */
+.fc-today-button:disabled {
+  opacity: 0.6 !important;
+}
+
+/* Calendar header */
+.fc-toolbar-title {
+  color: #003F7F !important;
+  font-weight: 600 !important;
+  font-size: 1.5rem !important;
+}
+
+/* Calendar grid headers */
+.fc-col-header-cell {
+  background-color: #003F7F !important;
+  color: white !important;
+  font-weight: 600 !important;
+  padding: 12px 0 !important;
+  display: table-cell !important;
+}
+
+.fc-col-header-cell-cushion {
+  color: white !important;
+}
+
+/* Force all days to show */
+.fc-daygrid-day {
+  display: table-cell !important;
+}
+
+.fc table {
+  table-layout: fixed !important;
+  width: 100% !important;
+}
+
+/* Today's date highlight */
+.fc-day-today {
+  background-color: rgba(0, 63, 127, 0.05) !important;
+}
+
+.fc-day-today .fc-daygrid-day-number {
+  background-color: #003F7F !important;
+  color: white !important;
+  border-radius: 50% !important;
+  width: 28px !important;
+  height: 28px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 2px auto !important;
+}
+
+/* Calendar events */
+.fc-event {
+  border: none !important;
+  border-radius: 4px !important;
+  padding: 2px 4px !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+}
+
+.fc-event-main {
+  padding: 2px 4px !important;
+}
+
+/* Event colors by type */
+.fc-event.event-delivery {
+  background-color: #10B981 !important;
+  color: white !important;
+}
+
+.fc-event.event-pickup {
+  background-color: #3B82F6 !important;
+  color: white !important;
+}
+
+.fc-event.event-service {
+  background-color: #F59E0B !important;
+  color: white !important;
+}
+
+.fc-event.event-meeting {
+  background-color: #8B5CF6 !important;
+  color: white !important;
+}
+
+.fc-event.event-task {
+  background-color: #6B7280 !important;
+  color: white !important;
+}
+
+.fc-event.event-other {
+  background-color: #64748B !important;
+  color: white !important;
+}
+
+/* Calendar grid lines */
+.fc-scrollgrid {
+  border-color: #E5E7EB !important;
+}
+
+.fc-scrollgrid td, .fc-scrollgrid th {
+  border-color: #E5E7EB !important;
+}
+
+/* More events link */
+.fc-more-link {
+  color: #003F7F !important;
+  font-weight: 500 !important;
+}
+
+.fc-more-link:hover {
+  text-decoration: underline !important;
+}
+
+/* Day numbers */
+.fc-daygrid-day-number {
+  color: #374151 !important;
+  font-weight: 500 !important;
+  padding: 4px !important;
+}
+
+/* Weekend days */
+.fc-day-sat, .fc-day-sun {
+  background-color: rgba(0, 0, 0, 0.02) !important;
+  display: table-cell !important;
+}
+
+/* Ensure weekend columns are visible */
+.fc-col-header-cell.fc-day-sat,
+.fc-col-header-cell.fc-day-sun {
+  display: table-cell !important;
+  background-color: #003F7F !important;
+}
+
+.fc-daygrid-day.fc-day-sat,
+.fc-daygrid-day.fc-day-sun {
+  display: table-cell !important;
+}
+
+/* Hover effect on calendar days */
+.fc-daygrid-day:hover {
+  background-color: rgba(0, 63, 127, 0.03) !important;
+  cursor: pointer !important;
 }

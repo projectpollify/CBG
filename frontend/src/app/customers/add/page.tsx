@@ -107,27 +107,25 @@ export default function AddCustomerPage() {
       newErrors.businessName = 'Business name is required';
     }
 
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    // Email is optional, but if provided, must be valid
+    if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
     }
 
-    if (!formData.phone.trim()) {
-      newErrors.phone = 'Phone number is required';
-    }
+    // Phone is optional - no validation required
 
-    if (!formData.street.trim()) {
-      newErrors.street = 'Street address is required';
-    }
+    // Address fields are now optional - no validation required
+    // if (!formData.street.trim()) {
+    //   newErrors.street = 'Street address is required';
+    // }
 
-    if (!formData.city.trim()) {
-      newErrors.city = 'City is required';
-    }
+    // if (!formData.city.trim()) {
+    //   newErrors.city = 'City is required';
+    // }
 
-    if (!formData.postalCode.trim()) {
-      newErrors.postalCode = 'Postal code is required';
-    }
+    // if (!formData.postalCode.trim()) {
+    //   newErrors.postalCode = 'Postal code is required';
+    // }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -297,7 +295,7 @@ export default function AddCustomerPage() {
               {/* Email */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address *
+                  Email Address
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -323,7 +321,7 @@ export default function AddCustomerPage() {
               {/* Phone */}
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number *
+                  Phone Number
                 </label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -360,7 +358,7 @@ export default function AddCustomerPage() {
               {/* Street Address */}
               <div>
                 <label htmlFor="street" className="block text-sm font-medium text-gray-700 mb-1">
-                  Street Address *
+                  Street Address (Optional)
                 </label>
                 <input
                   type="text"
@@ -384,7 +382,7 @@ export default function AddCustomerPage() {
                 {/* City */}
                 <div>
                   <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
-                    City *
+                    City (Optional)
                   </label>
                   <select
                     id="city"
@@ -394,6 +392,7 @@ export default function AddCustomerPage() {
                       errors.city ? 'border-red-300' : 'border-gray-300'
                     }`}
                   >
+                    <option value="">-- No Selection --</option>
                     {BC_CITIES.map(city => (
                       <option key={city} value={city}>{city}</option>
                     ))}
@@ -417,8 +416,8 @@ export default function AddCustomerPage() {
                     onChange={(e) => handleChange('province', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cbg-orange focus:border-transparent"
                   >
+                    <option value="">-- No Selection --</option>
                     <option value="BC">British Columbia</option>
-                    <option value="AB">Alberta</option>
                   </select>
                 </div>
               </div>
@@ -426,7 +425,7 @@ export default function AddCustomerPage() {
               {/* Postal Code */}
               <div>
                 <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-1">
-                  Postal Code *
+                  Postal Code (Optional)
                 </label>
                 <input
                   type="text"

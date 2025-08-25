@@ -5,12 +5,12 @@ const prisma = new PrismaClient();
 export interface CreateCustomerData {
   contactName: string;
   businessName: string;
-  email: string;
-  phone: string;
-  street: string;
-  city: string;
+  email?: string;
+  phone?: string;
+  street?: string;
+  city?: string;
   province?: string;
-  postalCode: string;
+  postalCode?: string;
   regionId: string;
   status?: CustomerStatus;
   notes?: string;

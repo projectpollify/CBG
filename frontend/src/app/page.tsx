@@ -12,7 +12,6 @@ import {
   CheckCircle,
   AlertCircle,
   Package,
-  ChefHat,
   ArrowRight,
   BarChart3
 } from 'lucide-react';
@@ -100,8 +99,12 @@ export default function DashboardPage() {
       {/* Welcome Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-cbg-navy flex items-center">
-          <ChefHat className="w-8 h-8 mr-3 text-cbg-orange" />
-          Dashboard
+          <img 
+            src="/images/cbg-logo.png" 
+            alt="CBG" 
+            className="h-16 w-auto mr-4"
+          />
+          Cutting Board Guys Dashboard
         </h1>
         <p className="text-gray-600 mt-2">Welcome to your Cutting Board Guys business hub</p>
       </div>

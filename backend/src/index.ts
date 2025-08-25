@@ -5,6 +5,8 @@ import { PrismaClient } from '@prisma/client';
 // Import route handlers
 import customerRoutes from './routes/customers';
 import invoiceRoutes from './routes/invoices';
+import appointmentRoutes from './routes/appointments';
+import authRoutes from './routes/auth';
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -49,8 +51,10 @@ app.get('/api/test-db', async (_req, res) => {
 });
 
 // Register API routes
+app.use('/api/auth', authRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/invoices', invoiceRoutes);
+app.use('/api/appointments', appointmentRoutes);
 
 app.get('/api/settings', (_req, res) => {
   res.json({ 
@@ -77,6 +81,7 @@ app.listen(port, () => {
   console.log(`👥 Customers API: http://localhost:${port}/api/customers`);
   console.log(`📄 Invoices API: http://localhost:${port}/api/invoices`);
   console.log('✅ Backend ready for connections!\n');
+  
 });
 
 // Graceful shutdown

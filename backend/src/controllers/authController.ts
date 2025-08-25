@@ -52,6 +52,29 @@ export class AuthController {
         { expiresIn: '7d' }
       );
 
+      // Clean up any existing sessions for this user
+      try {
+        await prisma.session.deleteMany({
+          where: { userId: user.id }
+        });
+      } catch (deleteError) {
+        console.log('Session cleanup error (non-fatal):', deleteError);
+      }
+
+      // Create new session
+      try {
+        await prisma.session.create({
+          data: {
+            token,
+            userId: user.id,
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+          }
+        });
+      } catch (createError) {
+        console.log('Session creation error:', createError);
+        // Continue anyway - token is still valid
+      }
+
       // Update last login (optional tracking)
       await prisma.user.update({
         where: { id: user.id },
@@ -88,12 +111,21 @@ export class AuthController {
   }
 
   /**
-   * Logout user (frontend handles token removal)
+   * Logout user (cleanup session)
    * POST /api/auth/logout
    */
   static async logout(req: Request, res: Response) {
     try {
-      // Simple logout - frontend will remove token from localStorage
+      // Get token from header
+      const token = req.headers.authorization?.replace('Bearer ', '');
+      
+      if (token) {
+        // Delete the session from database
+        await prisma.session.deleteMany({
+          where: { token }
+        });
+      }
+      
       res.json({
         success: true,
         message: 'Logged out successfully'

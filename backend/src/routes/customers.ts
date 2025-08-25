@@ -156,26 +156,26 @@ router.post('/', async (req: Request, res: Response) => {
       notes
     } = req.body;
 
-    // Basic validation
-    if (!contactName || !businessName || !email || !phone || !street || !city || !postalCode || !regionId) {
+    // Basic validation - only require essential fields
+    if (!contactName || !businessName || !regionId) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields: contactName, businessName, email, phone, street, city, postalCode, regionId'
+        error: 'Missing required fields: contactName, businessName, regionId'
       });
     }
 
     const customerData = {
       contactName: contactName.trim(),
       businessName: businessName.trim(),
-      email: email.trim(),
-      phone: phone.trim(),
-      street: street.trim(),
-      city: city.trim(),
-      province: province?.trim() || 'BC',
-      postalCode: postalCode.trim(),
+      email: email && email.trim() ? email.trim() : undefined,     // Made optional - use undefined for Prisma
+      phone: phone && phone.trim() ? phone.trim() : undefined,     // Made optional - use undefined for Prisma  
+      street: street && street.trim() ? street.trim() : undefined,   // Made optional
+      city: city && city.trim() ? city.trim() : undefined,       // Made optional
+      province: province && province.trim() ? province.trim() : 'BC',
+      postalCode: postalCode && postalCode.trim() ? postalCode.trim() : undefined,  // Made optional
       regionId: regionId.trim(),
       status: status || CustomerStatus.ACTIVE,
-      notes: notes?.trim() || null
+      notes: notes && notes.trim() ? notes.trim() : undefined
     };
 
     const customer = await CustomerService.createCustomer(customerData);
@@ -189,7 +189,7 @@ router.post('/', async (req: Request, res: Response) => {
     console.error('Error creating customer:', error);
     return res.status(500).json({
       success: false,
-      error: 'Failed to create customer'
+      error: error instanceof Error ? error.message : 'Failed to create customer'
     });
   }
 });
@@ -219,10 +219,10 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (businessName !== undefined) updateData.businessName = businessName.trim();
     if (email !== undefined) updateData.email = email.trim();
     if (phone !== undefined) updateData.phone = phone.trim();
-    if (street !== undefined) updateData.street = street.trim();
-    if (city !== undefined) updateData.city = city.trim();
+    if (street !== undefined) updateData.street = street ? street.trim() : null;  // Allow null/empty
+    if (city !== undefined) updateData.city = city ? city.trim() : null;  // Allow null/empty
     if (province !== undefined) updateData.province = province.trim();
-    if (postalCode !== undefined) updateData.postalCode = postalCode.trim();
+    if (postalCode !== undefined) updateData.postalCode = postalCode ? postalCode.trim() : null;  // Allow null/empty
     if (regionId !== undefined) updateData.regionId = regionId.trim();
     if (status !== undefined) updateData.status = status;
     if (notes !== undefined) updateData.notes = notes ? notes.trim() : null;

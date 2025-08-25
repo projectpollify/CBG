@@ -1,0 +1,49 @@
+========================================
+HOW TO START YOUR SERVERS - IMPORTANT!
+========================================
+
+YOUR PROJECT LOCATION:
+- Your actual project is in: /Users/shawn/Desktop/CBG/CBG-new
+- NOT in /Users/shawn/Desktop/CBG (that's just the parent folder)
+
+TO START THE SERVERS:
+1. Open Terminal
+2. Navigate to your project:
+   cd /Users/shawn/Desktop/CBG/CBG-new
+
+3. Run the start script:
+   ./start.sh
+
+IMPORTANT NOTES:
+- Always use ./ (dot slash) before the script name
+- The dot means "current directory"
+- Never use just / (slash) - that looks in the wrong place
+- Wrong: /start.sh
+- Right: ./start.sh
+
+WHAT THIS STARTS:
+- Frontend on http://localhost:3000 (your calendar dashboard)
+- Backend on http://localhost:3001 (API server)
+
+TO STOP THE SERVERS:
+- Press Ctrl+C in the terminal, or
+- Run: killall node
+
+IF THE SCRIPT DOESN'T EXIST:
+The start.sh script should be in your CBG-new folder.
+If it's missing, ask Claude to recreate it.
+
+COMMON MISTAKES TO AVOID:
+1. Being in the wrong folder (must be in CBG-new)
+2. Typing "Start both servers" (that's not a command)
+3. Using /start.sh instead of ./start.sh
+4. Running scripts from CBG instead of CBG-new
+
+QUICK COMMAND REFERENCE:
+cd /Users/shawn/Desktop/CBG/CBG-new    # Go to project
+./start.sh                              # Start servers
+killall node                            # Stop servers
+
+========================================
+Save this file for future reference!
+========================================
