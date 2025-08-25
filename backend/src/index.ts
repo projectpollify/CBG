@@ -9,7 +9,6 @@ import appointmentRoutes from './routes/appointments';
 import authRoutes from './routes/auth';
 
 const app = express();
-const port = process.env.PORT || 3001;
 const prisma = new PrismaClient();
 
 // Middleware
@@ -72,29 +71,34 @@ app.use('/api/*', (req, res) => {
   });
 });
 
-// Start server
-app.listen(port, () => {
-  console.log('🥖 Cutting Board Guys Backend Starting...');
-  console.log(`📡 Server running on port ${port}`);
-  console.log(`🔗 Health check: http://localhost:${port}/api/health`);
-  console.log(`📊 Database test: http://localhost:${port}/api/test-db`);
-  console.log(`👥 Customers API: http://localhost:${port}/api/customers`);
-  console.log(`📄 Invoices API: http://localhost:${port}/api/invoices`);
-  console.log('✅ Backend ready for connections!\n');
-  
-});
+// For local development only
+if (!process.env.VERCEL) {
+  const port = process.env.PORT || 3001;
+  app.listen(port, () => {
+    console.log('🥖 Cutting Board Guys Backend Starting...');
+    console.log(`📡 Server running on port ${port}`);
+    console.log(`🔗 Health check: http://localhost:${port}/api/health`);
+    console.log(`📊 Database test: http://localhost:${port}/api/test-db`);
+    console.log(`👥 Customers API: http://localhost:${port}/api/customers`);
+    console.log(`📄 Invoices API: http://localhost:${port}/api/invoices`);
+    console.log('✅ Backend ready for connections!\n');
+  });
 
-// Graceful shutdown
-process.on('SIGINT', async () => {
-  console.log('\n🛑 Shutting down server...');
-  await prisma.$disconnect();
-  console.log('✅ Database disconnected');
-  process.exit(0);
-});
+  // Graceful shutdown
+  process.on('SIGINT', async () => {
+    console.log('\n🛑 Shutting down server...');
+    await prisma.$disconnect();
+    console.log('✅ Database disconnected');
+    process.exit(0);
+  });
 
-process.on('SIGTERM', async () => {
-  console.log('\n🛑 Shutting down server...');
-  await prisma.$disconnect();
-  console.log('✅ Database disconnected');
-  process.exit(0);
-});
+  process.on('SIGTERM', async () => {
+    console.log('\n🛑 Shutting down server...');
+    await prisma.$disconnect();
+    console.log('✅ Database disconnected');
+    process.exit(0);
+  });
+}
+
+// CRITICAL: Export for Vercel
+export default app;
