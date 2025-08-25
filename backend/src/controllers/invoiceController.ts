@@ -9,7 +9,7 @@ import {
   PaymentMethod,
   InvoiceStatus,
   ServiceType
-} from 'cbg-shared';
+} from '@/types/shared';
 
 export class InvoiceController {
   static async createInvoice(req: Request, res: Response): Promise<void> {

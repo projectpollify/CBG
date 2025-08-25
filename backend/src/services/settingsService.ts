@@ -9,7 +9,7 @@ import {
   DEFAULT_SERVICE_PRICING,
   DEFAULT_TAX_RATES,
   DEFAULT_INVOICE_SETTINGS
-} from 'cbg-shared';
+} from '@/types/shared';
 
 const prisma = new PrismaClient();
 

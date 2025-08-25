@@ -1,4 +1,4 @@
-import { Invoice, CompanyInfo, InvoiceLineItem } from 'cbg-shared';
+import { Invoice, CompanyInfo, InvoiceLineItem } from '@/types/shared';
 import { SettingsService } from './settingsService';
 import { Resend } from 'resend';
 

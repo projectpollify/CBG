@@ -10,7 +10,7 @@ import {
   InvoiceCalculator,
   TaxRates,
   DEFAULT_TAX_RATES
-} from 'cbg-shared';
+} from '@/types/shared';
 
 const prisma = new PrismaClient();
 
