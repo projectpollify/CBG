@@ -212,3 +212,15 @@ Desktop.ini
 # Uploaded files (future feature)
 uploads/
 public/uploads/
+
+# Vercel
+.vercel
+
+# Local scripts
+start-servers.sh
+stop-servers.sh
+HOW_TO_START_SERVERS.txt
+
+# PID files
+.backend.pid
+.frontend.pid

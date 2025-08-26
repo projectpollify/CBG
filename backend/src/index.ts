@@ -16,6 +16,15 @@ app.use(cors());
 app.use(express.json());
 
 // Basic health check endpoint
+app.get('/health', (_req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: '🥖 Cutting Board Guys Backend is running!',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Also expose on /api/health for compatibility
 app.get('/api/health', (_req, res) => {
   res.json({ 
     status: 'OK', 

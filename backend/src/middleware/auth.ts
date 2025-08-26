@@ -73,7 +73,7 @@ export function authenticateToken(req: AuthRequest, res: Response, next: NextFun
   // For development, bypass authentication
   req.user = {
     id: 'dev-user-id',
-    email: 'admin@cuttingboardguys.com',
+    email: 'info@cuttingboardguys.ca',
     role: 'OWNER',
     regionId: 'BC_VANCOUVER'
   };

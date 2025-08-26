@@ -12,7 +12,7 @@ import {
   TaxRates,
   InvoiceCalculator,
   DEFAULT_TAX_RATES
-} from 'cbg-shared';
+} from '@/shared';
 
 export default function CreateInvoicePage() {
   const router = useRouter();

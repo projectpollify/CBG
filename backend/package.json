@@ -5,13 +5,15 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "nodemon",
-    "build": "echo 'Skipping TypeScript build' && npx prisma generate",
-    "start": "npx ts-node src/index.ts",
+    "build": "prisma generate && tsc",
+    "start": "node dist/index.js",
+    "postinstall": "prisma generate",
     "vercel-build": "prisma generate && npm run build",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "prisma:seed": "ts-node prisma/seed.ts",
+    "migrate:data": "ts-node scripts/migrate-to-postgres.ts",
     "lint": "eslint src --ext .ts",
     "test": "jest"
   },
@@ -35,6 +37,7 @@
     "nodemailer": "6.9.7",
     "redis": "4.6.11",
     "resend": "^6.0.1",
+    "typescript": "^5.3.3",
     "uuid": "9.0.1"
   },
   "devDependencies": {

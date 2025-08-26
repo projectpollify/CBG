@@ -35,7 +35,9 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.json",
-    "../shared/src/**/*.ts"
+    "../shared/src/**/*.ts",
+    "scripts/**/*.ts",
+    "prisma/**/*.ts"
   ],
   "exclude": [
     "node_modules",

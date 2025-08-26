@@ -7,7 +7,7 @@ async function createAdminUser() {
   try {
     // Check if admin user already exists
     const existingUser = await prisma.user.findUnique({
-      where: { email: 'admin@cuttingboardguys.com' }
+      where: { email: 'info@cuttingboardguys.ca' }
     });
 
     if (existingUser) {
@@ -16,12 +16,12 @@ async function createAdminUser() {
     }
 
     // Hash the password
-    const hashedPassword = await bcrypt.hash('CBG2024!', 10);
+    const hashedPassword = await bcrypt.hash('pass1234', 10);
 
     // Create the admin user
     const adminUser = await prisma.user.create({
       data: {
-        email: 'admin@cuttingboardguys.com',
+        email: 'info@cuttingboardguys.ca',
         password: hashedPassword,
         firstName: 'Admin',
         lastName: 'User',

@@ -6,7 +6,8 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
-import { EventClickArg, DateClickArg, EventDropArg } from '@fullcalendar/core';
+import { EventClickArg, EventDropArg } from '@fullcalendar/core';
+import { DateClickArg } from '@fullcalendar/interaction';
 
 interface Appointment {
   id: string;

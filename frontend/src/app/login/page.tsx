@@ -125,7 +125,7 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   onBlur={(e) => setEmail(e.target.value)}
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cbg-orange focus:border-transparent"
-                  placeholder="admin@cuttingboardguys.com"
+                  placeholder="Enter your email"
                 />
               </div>
             </div>
@@ -190,14 +190,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-xs text-gray-600 text-center">
-              Demo Credentials:<br />
-              Email: admin@cuttingboardguys.com<br />
-              Password: CBG2024!
-            </p>
-          </div>
         </div>
       </div>
     </div>

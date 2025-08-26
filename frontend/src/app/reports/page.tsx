@@ -84,37 +84,61 @@ export default function ReportsPage() {
             ? { className: "bg-white rounded-lg shadow opacity-75 cursor-not-allowed" }
             : { href: card.href, className: "bg-white rounded-lg shadow hover:shadow-lg transition-shadow" };
           
-          return (
-            <CardWrapper
+          return isComingSoon ? (
+            <div
               key={card.href}
-              {...cardProps}
+              className="bg-white rounded-lg shadow opacity-75 cursor-not-allowed"
             >
               <div className="p-6 relative">
-                {isComingSoon && (
-                  <div className="absolute top-4 right-4 bg-gray-500 text-white text-xs font-semibold px-2 py-1 rounded">
-                    COMING SOON
-                  </div>
-                )}
+                <div className="absolute top-4 right-4 bg-gray-500 text-white text-xs font-semibold px-2 py-1 rounded">
+                  COMING SOON
+                </div>
                 <div className="flex items-start justify-between mb-4">
-                  <div className={`${card.color} p-3 rounded-lg ${isComingSoon ? 'opacity-60' : ''}`}>
+                  <div className={`${card.color} p-3 rounded-lg opacity-60`}>
                     <card.icon className="w-6 h-6 text-white" />
                   </div>
-                  {!isComingSoon && <ChevronRight className="w-5 h-5 text-gray-400" />}
                 </div>
                 
-                <h3 className={`text-xl font-semibold mb-2 ${isComingSoon ? 'text-gray-500' : 'text-[#003F7F]'}`}>
+                <h3 className="text-xl font-semibold mb-2 text-gray-500">
                   {card.title}
                 </h3>
                 
-                <p className={`mb-3 ${isComingSoon ? 'text-gray-400' : 'text-gray-600'}`}>
+                <p className="mb-3 text-gray-400">
                   {card.description}
                 </p>
                 
-                <div className={`text-sm font-medium ${isComingSoon ? 'text-gray-400' : 'text-[#FF6B35]'}`}>
+                <div className="text-sm font-medium text-gray-400">
                   {card.stats}
                 </div>
               </div>
-            </CardWrapper>
+            </div>
+          ) : (
+            <Link
+              key={card.href}
+              href={card.href}
+              className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow"
+            >
+              <div className="p-6 relative">
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`${card.color} p-3 rounded-lg`}>
+                    <card.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                </div>
+                
+                <h3 className="text-xl font-semibold mb-2 text-[#003F7F]">
+                  {card.title}
+                </h3>
+                
+                <p className="mb-3 text-gray-600">
+                  {card.description}
+                </p>
+                
+                <div className="text-sm font-medium text-[#FF6B35]">
+                  {card.stats}
+                </div>
+              </div>
+            </Link>
           );
         })}
       </div>

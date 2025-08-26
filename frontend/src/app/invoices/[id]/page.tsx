@@ -9,7 +9,7 @@ import {
   PaymentMethod,
   CompanyInfo,
   InvoiceLineItem
-} from 'cbg-shared';
+} from '@/shared';
 
 export default function InvoiceDetailPage() {
   const params = useParams();

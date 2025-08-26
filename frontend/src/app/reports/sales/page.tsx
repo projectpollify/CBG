@@ -10,7 +10,7 @@ import {
   DollarSign,
   Package
 } from 'lucide-react';
-import { ServiceType, InvoiceSummary } from 'cbg-shared';
+import { ServiceType, InvoiceSummary } from '@/shared';
 
 export default function SalesReportsPage() {
   const [timeRange, setTimeRange] = useState<'month' | 'quarter' | 'year'>('month');

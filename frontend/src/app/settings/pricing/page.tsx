@@ -10,7 +10,7 @@ import {
   Check,
   X
 } from 'lucide-react';
-import { ServiceType, ServicePricing } from 'cbg-shared';
+import { ServiceType, ServicePricing } from '@/shared';
 
 interface EditableService {
   serviceType: ServiceType;

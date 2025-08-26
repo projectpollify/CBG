@@ -10,7 +10,7 @@ import {
   CustomerFormErrors,
   BC_REGIONS,
   ApiResponse
-} from '@/../../shared/src';
+} from '@/shared';
 import { 
   ArrowLeft, 
   Save, 
@@ -94,14 +94,14 @@ export default function EditCustomerPage() {
 
   // Handle form field changes
   const handleChange = (field: string, value: string | CustomerStatus) => {
-    setFormData(prev => ({
+    setFormData((prev: typeof formData) => ({
       ...prev,
       [field]: value
     }));
 
     // Clear error for this field when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev: typeof errors) => ({
         ...prev,
         [field]: undefined
       }));

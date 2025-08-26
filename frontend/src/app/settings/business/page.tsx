@@ -13,7 +13,7 @@ import {
   Globe,
   Hash
 } from 'lucide-react';
-import { CompanyInfo, InvoiceDefaults } from 'cbg-shared';
+import { CompanyInfo, InvoiceDefaults } from '@/shared';
 
 export default function BusinessSettingsPage() {
   const router = useRouter();

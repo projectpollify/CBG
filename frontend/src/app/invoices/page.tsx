@@ -7,7 +7,7 @@ import {
   InvoiceStatus, 
   InvoiceFilter,
   InvoiceSummary
-} from '@/../../shared/src';
+} from '@/shared';
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -161,7 +161,7 @@ export default function InvoicesPage() {
             }`}
             onClick={() => {
               setActiveCard(activeCard === 'DRAFT' ? '' : 'DRAFT');
-              setStatusFilter(activeCard === 'DRAFT' ? '' : 'DRAFT');
+              setStatusFilter(activeCard === 'DRAFT' ? '' : InvoiceStatus.DRAFT);
               setCurrentPage(1);
             }}
           >
@@ -176,7 +176,7 @@ export default function InvoicesPage() {
             }`}
             onClick={() => {
               setActiveCard(activeCard === 'SENT' ? '' : 'SENT');
-              setStatusFilter(activeCard === 'SENT' ? '' : 'SENT');
+              setStatusFilter(activeCard === 'SENT' ? '' : InvoiceStatus.SENT);
               setCurrentPage(1);
             }}
           >
@@ -191,7 +191,7 @@ export default function InvoicesPage() {
             }`}
             onClick={() => {
               setActiveCard(activeCard === 'PAID' ? '' : 'PAID');
-              setStatusFilter(activeCard === 'PAID' ? '' : 'PAID');
+              setStatusFilter(activeCard === 'PAID' ? '' : InvoiceStatus.PAID);
               setCurrentPage(1);
             }}
           >
@@ -204,7 +204,7 @@ export default function InvoicesPage() {
             }`}
             onClick={() => {
               setActiveCard(activeCard === 'OVERDUE' ? '' : 'OVERDUE');
-              setStatusFilter(activeCard === 'OVERDUE' ? '' : 'OVERDUE');
+              setStatusFilter(activeCard === 'OVERDUE' ? '' : InvoiceStatus.OVERDUE);
               setCurrentPage(1);
             }}
           >

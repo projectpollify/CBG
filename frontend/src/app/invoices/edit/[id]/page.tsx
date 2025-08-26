@@ -15,7 +15,7 @@ import {
   TaxRates,
   InvoiceCalculator,
   DEFAULT_TAX_RATES
-} from 'cbg-shared';
+} from '@/shared';
 
 export default function EditInvoicePage() {
   const params = useParams();
@@ -291,62 +291,60 @@ export default function EditInvoicePage() {
       </div>
 
       {/* Status Management */}
-      {status !== InvoiceStatus.PAID && (
-        <div className="bg-white p-6 rounded-lg shadow mb-6">
-          <h2 className="text-xl font-semibold mb-4 text-[#003F7F]">Status Management</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Status
-              </label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value as InvoiceStatus)}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B35]"
-              >
-                <option value={InvoiceStatus.DRAFT}>Draft</option>
-                <option value={InvoiceStatus.SENT}>Sent</option>
-                <option value={InvoiceStatus.PAID}>Paid</option>
-                <option value={InvoiceStatus.OVERDUE}>Overdue</option>
-              </select>
-            </div>
-            
-            {status === InvoiceStatus.PAID && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Payment Method
-                  </label>
-                  <select
-                    value={paymentMethod}
-                    onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B35]"
-                  >
-                    <option value="">Select method...</option>
-                    <option value={PaymentMethod.CASH}>Cash</option>
-                    <option value={PaymentMethod.CHEQUE}>Cheque</option>
-                    <option value={PaymentMethod.E_TRANSFER}>E-Transfer</option>
-                    <option value={PaymentMethod.CREDIT_CARD}>Credit Card</option>
-                    <option value={PaymentMethod.DEBIT}>Debit</option>
-                    <option value={PaymentMethod.OTHER}>Other</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Payment Date
-                  </label>
-                  <input
-                    type="date"
-                    value={paidDate}
-                    onChange={(e) => setPaidDate(e.target.value)}
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B35]"
-                  />
-                </div>
-              </>
-            )}
+      <div className="bg-white p-6 rounded-lg shadow mb-6">
+        <h2 className="text-xl font-semibold mb-4 text-[#003F7F]">Status Management</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Status
+            </label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value as InvoiceStatus)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B35]"
+            >
+              <option value={InvoiceStatus.DRAFT}>Draft</option>
+              <option value={InvoiceStatus.SENT}>Sent</option>
+              <option value={InvoiceStatus.PAID}>Paid</option>
+              <option value={InvoiceStatus.OVERDUE}>Overdue</option>
+            </select>
           </div>
+          
+          {status === InvoiceStatus.PAID && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Payment Method
+                </label>
+                <select
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B35]"
+                >
+                  <option value="">Select method...</option>
+                  <option value={PaymentMethod.CASH}>Cash</option>
+                  <option value={PaymentMethod.CHEQUE}>Cheque</option>
+                  <option value={PaymentMethod.E_TRANSFER}>E-Transfer</option>
+                  <option value={PaymentMethod.CREDIT_CARD}>Credit Card</option>
+                  <option value={PaymentMethod.DEBIT}>Debit</option>
+                  <option value={PaymentMethod.OTHER}>Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Payment Date
+                </label>
+                <input
+                  type="date"
+                  value={paidDate}
+                  onChange={(e) => setPaidDate(e.target.value)}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B35]"
+                />
+              </div>
+            </>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Customer Selection */}
       <div className="bg-white p-6 rounded-lg shadow mb-6">
