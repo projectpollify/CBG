@@ -82,7 +82,7 @@ app.use('/api/*', (req, res) => {
 
 // For local development only
 if (!process.env.VERCEL) {
-  const port = process.env.PORT || 3001;
+  const port = parseInt(process.env.PORT || '3001', 10);
   app.listen(port, () => {
     console.log('🥖 Cutting Board Guys Backend Starting...');
     console.log(`📡 Server running on port ${port}`);
