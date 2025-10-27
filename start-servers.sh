@@ -13,8 +13,8 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Base directory
-BASE_DIR="/Users/shawn/Desktop/CBG/CBG-new"
+# Base directory - Updated for WSL2 environment
+BASE_DIR="/mnt/c/cbgwebapp"
 
 # Function to check if port is in use
 check_port() {
