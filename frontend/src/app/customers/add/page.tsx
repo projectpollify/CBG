@@ -159,8 +159,14 @@ export default function AddCustomerPage() {
       const data = await response.json();
 
       if (data.success) {
-        // Success - redirect to customer list
-        router.push('/customers');
+        // Success - scroll to top and redirect
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Brief delay to show success, then redirect
+        setTimeout(() => {
+          router.push('/customers');
+          router.refresh(); // Force page refresh
+        }, 500);
       } else {
         // Show error
         setGeneralError(data.error || 'Failed to create customer');
