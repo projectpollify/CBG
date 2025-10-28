@@ -25,7 +25,8 @@ export default function CreateInvoicePage() {
   const [selectedCustomer, setSelectedCustomer] = useState<string>('');
   const [lineItems, setLineItems] = useState<InvoiceLineItem[]>([]);
   const [notes, setNotes] = useState('');
-  const [dueDate, setDueDate] = useState('');
+  const [invoiceDate, setInvoiceDate] = useState('');
+  const [paymentTermsDays] = useState(30);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [servicePricing, setServicePricing] = useState<Record<ServiceType, ServicePricing>>({} as any);
   const [taxRates, setTaxRates] = useState<TaxRates>(DEFAULT_TAX_RATES);
@@ -35,7 +36,7 @@ export default function CreateInvoicePage() {
   useEffect(() => {
     fetchCustomers();
     fetchSettings();
-    calculateDefaultDueDate();
+    calculateDefaultInvoiceDate();
   }, []);
   
   useEffect(() => {
@@ -89,10 +90,15 @@ export default function CreateInvoicePage() {
     }
   };
 
-  const calculateDefaultDueDate = () => {
+  const calculateDefaultInvoiceDate = () => {
     const date = new Date();
-    date.setDate(date.getDate() + 30);
-    setDueDate(date.toISOString().split('T')[0]);
+    setInvoiceDate(date.toISOString().split('T')[0]);
+  };
+
+  const calculateDueDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    date.setDate(date.getDate() + paymentTermsDays);
+    return date.toISOString().split('T')[0];
   };
 
   const addLineItem = () => {
@@ -150,6 +156,7 @@ export default function CreateInvoicePage() {
     setLoading(true);
 
     try {
+      const calculatedDueDate = calculateDueDate(invoiceDate);
       const response = await fetch('http://localhost:3001/api/invoices', {
         method: 'POST',
         headers: {
@@ -159,7 +166,8 @@ export default function CreateInvoicePage() {
           customerId: selectedCustomer,
           lineItems,
           notes,
-          dueDate,
+          invoiceDate,
+          dueDate: calculatedDueDate,
           status
         })
       });
@@ -456,14 +464,22 @@ export default function CreateInvoicePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Due Date
+              Invoice Date
             </label>
             <input
               type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
+              value={invoiceDate}
+              onChange={(e) => setInvoiceDate(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF6B35]"
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Payment Terms
+            </label>
+            <div className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-gray-700 flex items-center">
+              Net {paymentTermsDays} days
+            </div>
           </div>
         </div>
         <div className="mt-4">
