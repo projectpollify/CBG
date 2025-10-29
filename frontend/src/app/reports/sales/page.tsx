@@ -13,12 +13,17 @@ import {
 import { ServiceType, InvoiceSummary } from '@/shared';
 
 export default function SalesReportsPage() {
-  const [timeRange, setTimeRange] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
+  const [timeRange, setTimeRange] = useState<'week' | 'month' | 'quarter' | 'year' | 'custom'>('month');
   const [salesData, setSalesData] = useState<InvoiceSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [customStartDate, setCustomStartDate] = useState<string>('');
+  const [customEndDate, setCustomEndDate] = useState<string>('');
 
   useEffect(() => {
-    fetchSalesData();
+    // Don't auto-fetch for custom until user clicks Apply
+    if (timeRange !== 'custom') {
+      fetchSalesData();
+    }
   }, [timeRange]);
 
   const fetchSalesData = async () => {
@@ -28,7 +33,43 @@ export default function SalesReportsPage() {
       let startDate: Date;
       let endDate: Date = now;
 
-      switch (timeRange) {
+      if (timeRange === 'custom') {
+        // Use custom dates
+        if (!customStartDate || !customEndDate) {
+          alert('Please select both start and end dates');
+          setLoading(false);
+          return;
+        }
+        startDate = new Date(customStartDate);
+        endDate = new Date(customEndDate);
+
+        // Set end date to end of day for better UX
+        endDate.setHours(23, 59, 59, 999);
+
+        // Validate dates
+        if (startDate > endDate) {
+          alert('Start date must be before end date');
+          setLoading(false);
+          return;
+        }
+
+        if (endDate > now) {
+          alert('End date cannot be in the future');
+          setLoading(false);
+          return;
+        }
+
+        // Check for maximum 2 year range
+        const twoYearsAgo = new Date(now);
+        twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+        if (startDate < twoYearsAgo) {
+          alert('Date range cannot exceed 2 years');
+          setLoading(false);
+          return;
+        }
+      } else {
+        // Existing preset logic
+        switch (timeRange) {
           case 'week':
             startDate = new Date(now);
             startDate.setDate(startDate.getDate() - startDate.getDay());
@@ -43,6 +84,7 @@ export default function SalesReportsPage() {
           case 'year':
             startDate = new Date(now.getFullYear(), 0, 1);
             break;
+        }
       }
 
       const response = await fetch(
@@ -72,11 +114,36 @@ export default function SalesReportsPage() {
     return names[serviceType] || serviceType;
   };
 
+  const getDateRangeDisplay = (): string => {
+    if (timeRange === 'custom' && customStartDate && customEndDate) {
+      const start = new Date(customStartDate).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: new Date(customStartDate).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+      });
+      const end = new Date(customEndDate).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+      return `${start} - ${end}`;
+    }
+    return timeRange;
+  };
+
   const exportToCSV = () => {
     if (!salesData) return;
 
+    // Determine date range text for the report
+    let dateRangeText = '';
+    if (timeRange === 'custom') {
+      dateRangeText = `${customStartDate} to ${customEndDate}`;
+    } else {
+      dateRangeText = `This ${timeRange}`;
+    }
+
     const csvContent = [
-      ['Sales Report', `Period: ${timeRange}`],
+      ['Sales Report', `Period: ${dateRangeText}`],
       [],
       ['Metric', 'Value'],
       ['Total Revenue', `$${salesData.totalRevenue.toFixed(2)}`],
@@ -101,7 +168,12 @@ export default function SalesReportsPage() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `sales_report_${timeRange}_${new Date().toISOString().split('T')[0]}.csv`;
+
+    // Include custom dates in filename if applicable
+    const dateString = timeRange === 'custom'
+      ? `custom_${customStartDate}_to_${customEndDate}`
+      : timeRange;
+    a.download = `sales_report_${dateString}_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
   };
 
@@ -180,7 +252,63 @@ export default function SalesReportsPage() {
             >
               This Year
             </button>
+            <button
+              onClick={() => setTimeRange('custom')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                timeRange === 'custom'
+                  ? 'bg-[#003F7F] text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Custom Dates
+            </button>
           </div>
+
+          {/* Custom Date Picker Row - Only show when custom is selected */}
+          {timeRange === 'custom' && (
+            <div className="flex items-end space-x-4 pt-4 border-t">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Start Date
+                </label>
+                <input
+                  type="date"
+                  value={customStartDate}
+                  onChange={(e) => setCustomStartDate(e.target.value)}
+                  max={new Date().toISOString().split('T')[0]}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003F7F]"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  End Date
+                </label>
+                <input
+                  type="date"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                  min={customStartDate}
+                  max={new Date().toISOString().split('T')[0]}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003F7F]"
+                />
+              </div>
+              <button
+                onClick={() => {
+                  if (customStartDate && customEndDate) {
+                    fetchSalesData();
+                  }
+                }}
+                disabled={!customStartDate || !customEndDate}
+                className={`px-6 py-2 rounded-lg transition-colors ${
+                  customStartDate && customEndDate
+                    ? 'bg-[#FF6B35] text-white hover:bg-[#ff8555]'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                Apply
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -191,7 +319,7 @@ export default function SalesReportsPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between mb-2">
                 <DollarSign className="w-8 h-8 text-green-500" />
-                <span className="text-sm text-gray-500">{timeRange}</span>
+                <span className="text-sm text-gray-500">{getDateRangeDisplay()}</span>
               </div>
               <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
               <p className="text-2xl font-bold text-[#003F7F]">
@@ -202,7 +330,7 @@ export default function SalesReportsPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between mb-2">
                 <Package className="w-8 h-8 text-blue-500" />
-                <span className="text-sm text-gray-500">{timeRange}</span>
+                <span className="text-sm text-gray-500">{getDateRangeDisplay()}</span>
               </div>
               <p className="text-sm text-gray-600 mb-1">Total Invoices</p>
               <p className="text-2xl font-bold text-[#003F7F]">
@@ -213,7 +341,7 @@ export default function SalesReportsPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between mb-2">
                 <TrendingUp className="w-8 h-8 text-purple-500" />
-                <span className="text-sm text-gray-500">{timeRange}</span>
+                <span className="text-sm text-gray-500">{getDateRangeDisplay()}</span>
               </div>
               <p className="text-sm text-gray-600 mb-1">Average Invoice</p>
               <p className="text-2xl font-bold text-[#003F7F]">
@@ -224,7 +352,7 @@ export default function SalesReportsPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between mb-2">
                 <Calendar className="w-8 h-8 text-orange-500" />
-                <span className="text-sm text-gray-500">{timeRange}</span>
+                <span className="text-sm text-gray-500">{getDateRangeDisplay()}</span>
               </div>
               <p className="text-sm text-gray-600 mb-1">Paid Invoices</p>
               <p className="text-2xl font-bold text-[#003F7F]">
