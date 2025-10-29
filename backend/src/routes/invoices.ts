@@ -6,6 +6,7 @@ const router = Router();
 // Invoice CRUD operations
 router.post('/', InvoiceController.createInvoice);
 router.get('/', InvoiceController.getInvoices);
+// NOTE: /stats must come BEFORE /:id to avoid being caught by the ID route
 router.get('/stats', InvoiceController.getInvoiceStats);
 router.get('/:id', InvoiceController.getInvoice);
 router.put('/:id', InvoiceController.updateInvoice);

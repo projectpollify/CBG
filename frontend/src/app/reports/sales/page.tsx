@@ -13,7 +13,7 @@ import {
 import { ServiceType, InvoiceSummary } from '@/shared';
 
 export default function SalesReportsPage() {
-  const [timeRange, setTimeRange] = useState<'month' | 'quarter' | 'year'>('month');
+  const [timeRange, setTimeRange] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
   const [salesData, setSalesData] = useState<InvoiceSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -23,31 +23,37 @@ export default function SalesReportsPage() {
 
   const fetchSalesData = async () => {
     try {
+      setLoading(true);
       const now = new Date();
       let startDate: Date;
-      
+      let endDate: Date = now;
+
       switch (timeRange) {
-        case 'month':
-          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-          break;
-        case 'quarter':
-          const quarter = Math.floor(now.getMonth() / 3);
-          startDate = new Date(now.getFullYear(), quarter * 3, 1);
-          break;
-        case 'year':
-          startDate = new Date(now.getFullYear(), 0, 1);
-          break;
+          case 'week':
+            startDate = new Date(now);
+            startDate.setDate(startDate.getDate() - startDate.getDay());
+            break;
+          case 'month':
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            break;
+          case 'quarter':
+            const quarter = Math.floor(now.getMonth() / 3);
+            startDate = new Date(now.getFullYear(), quarter * 3, 1);
+            break;
+          case 'year':
+            startDate = new Date(now.getFullYear(), 0, 1);
+            break;
       }
 
       const response = await fetch(
-        `http://localhost:3001/api/invoices/stats?startDate=${startDate.toISOString()}&endDate=${now.toISOString()}`
+        `http://localhost:3001/api/invoices/stats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
       );
       const data = await response.json();
-      
+
       if (data.success) {
         setSalesData(data.data);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching sales data:', error);
     } finally {
       setLoading(false);
@@ -132,37 +138,49 @@ export default function SalesReportsPage() {
 
       {/* Time Range Selector */}
       <div className="bg-white rounded-lg shadow p-4 mb-6">
-        <div className="flex space-x-4">
-          <button
-            onClick={() => setTimeRange('month')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              timeRange === 'month' 
-                ? 'bg-[#003F7F] text-white' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            This Month
-          </button>
-          <button
-            onClick={() => setTimeRange('quarter')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              timeRange === 'quarter' 
-                ? 'bg-[#003F7F] text-white' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            This Quarter
-          </button>
-          <button
-            onClick={() => setTimeRange('year')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              timeRange === 'year' 
-                ? 'bg-[#003F7F] text-white' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            This Year
-          </button>
+        <div className="flex flex-col space-y-4">
+          <div className="flex space-x-4">
+            <button
+              onClick={() => setTimeRange('week')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                timeRange === 'week'
+                  ? 'bg-[#003F7F] text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              This Week
+            </button>
+            <button
+              onClick={() => setTimeRange('month')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                timeRange === 'month'
+                  ? 'bg-[#003F7F] text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              This Month
+            </button>
+            <button
+              onClick={() => setTimeRange('quarter')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                timeRange === 'quarter'
+                  ? 'bg-[#003F7F] text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              This Quarter
+            </button>
+            <button
+              onClick={() => setTimeRange('year')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                timeRange === 'year'
+                  ? 'bg-[#003F7F] text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              This Year
+            </button>
+          </div>
         </div>
       </div>
 

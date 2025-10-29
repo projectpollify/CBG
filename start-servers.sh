@@ -56,7 +56,9 @@ start_postgres() {
 check_port() {
     local port=$1
     # Simple check: just look for the port number in listening state
-    if ss -tuln 2>/dev/null | grep -q ":$port "; then
+    if ss -tuln 2>/dev/null | grep -qE ":\s*$port\s"; then
+        return 0
+    elif ss -tuln 2>/dev/null | grep -q ":$port"; then
         return 0
     elif lsof -i :$port 2>/dev/null | grep -q LISTEN; then
         return 0

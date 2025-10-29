@@ -156,25 +156,12 @@ export default function DashboardPage() {
         </Link>
       </div>
 
-      {/* Statistics Cards */}
+      {/* Statistics Cards - Aligned with Action Tiles */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Customers Card */}
+        {/* Revenue Card - Under New Invoice */}
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between mb-4">
-            <Users className="w-8 h-8 text-cbg-orange" />
-            <span className="text-sm text-gray-500">Total</span>
-          </div>
-          <div className="text-2xl font-bold text-cbg-navy">{stats.totalCustomers}</div>
-          <div className="text-sm text-gray-600 mt-1">Active: {stats.activeCustomers}</div>
-          <Link href="/customers" className="text-sm text-cbg-orange hover:underline mt-2 inline-block">
-            View all customers →
-          </Link>
-        </div>
-
-        {/* Revenue Card */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between mb-4">
-            <DollarSign className="w-8 h-8 text-green-500" />
+            <DollarSign className="w-8 h-8 text-cbg-orange" />
             <span className="text-sm text-gray-500">This Month</span>
           </div>
           <div className="text-2xl font-bold text-cbg-navy">
@@ -186,10 +173,36 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {/* Invoices Card */}
+        {/* Customers Card - Under Add Customer */}
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between mb-4">
-            <FileText className="w-8 h-8 text-blue-500" />
+            <Users className="w-8 h-8 text-cbg-navy" />
+            <span className="text-sm text-gray-500">Total</span>
+          </div>
+          <div className="text-2xl font-bold text-cbg-navy">{stats.activeCustomers}</div>
+          <div className="text-sm text-gray-600 mt-1">{stats.totalCustomers} total customers</div>
+          <Link href="/customers" className="text-sm text-cbg-orange hover:underline mt-2 inline-block">
+            View all customers →
+          </Link>
+        </div>
+
+        {/* Appointments Card - Under Schedule */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between mb-4">
+            <Calendar className="w-8 h-8 text-green-600" />
+            <span className="text-sm text-gray-500">Today</span>
+          </div>
+          <div className="text-2xl font-bold text-cbg-navy">{stats.todayAppointments}</div>
+          <div className="text-sm text-gray-600 mt-1">This week: {stats.weekAppointments}</div>
+          <Link href="/appointments" className="text-sm text-cbg-orange hover:underline mt-2 inline-block">
+            View calendar →
+          </Link>
+        </div>
+
+        {/* Invoices Card - Under Reports */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between mb-4">
+            <FileText className="w-8 h-8 text-purple-600" />
             <span className="text-sm text-gray-500">Active</span>
           </div>
           <div className="text-2xl font-bold text-cbg-navy">{stats.totalInvoices}</div>
@@ -201,19 +214,6 @@ export default function DashboardPage() {
           </div>
           <Link href="/invoices" className="text-sm text-cbg-orange hover:underline mt-2 inline-block">
             Manage invoices →
-          </Link>
-        </div>
-
-        {/* Appointments Card */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between mb-4">
-            <Calendar className="w-8 h-8 text-purple-500" />
-            <span className="text-sm text-gray-500">Today</span>
-          </div>
-          <div className="text-2xl font-bold text-cbg-navy">{stats.todayAppointments}</div>
-          <div className="text-sm text-gray-600 mt-1">This week: {stats.weekAppointments}</div>
-          <Link href="/appointments" className="text-sm text-cbg-orange hover:underline mt-2 inline-block">
-            View calendar →
           </Link>
         </div>
       </div>
