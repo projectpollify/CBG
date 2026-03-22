@@ -125,7 +125,9 @@ export interface InvoiceFilter {
 }
 export interface InvoiceSummary {
     totalInvoices: number;
+    totalSales: number;
     totalRevenue: number;
+    outstandingAmount: number;
     paidInvoices: number;
     unpaidInvoices: number;
     overdueInvoices: number;

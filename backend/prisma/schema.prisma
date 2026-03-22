@@ -42,12 +42,12 @@ model Customer {
   regionId        String
   businessName    String
   contactName     String
-  email           String?        // Made optional
-  phone           String?        // Made optional
-  street          String?        // Made optional
-  city            String?        // Made optional
+  email           String?
+  phone           String?
+  street          String?
+  city            String?
   province        String         @default("BC")
-  postalCode      String?        // Made optional
+  postalCode      String?
   notes           String?
   status          CustomerStatus @default(ACTIVE)
   createdAt       DateTime       @default(now())
@@ -75,12 +75,12 @@ model Invoice {
   gstAmount     Decimal        @db.Decimal(10, 2)
   pstAmount     Decimal        @db.Decimal(10, 2)
   total         Decimal        @db.Decimal(10, 2)
-  paymentMethod PaymentMethod?
   emailedAt     DateTime?
   emailedTo     String?
-  notes         String?        @db.Text
+  notes         String?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+  paymentMethod PaymentMethod?
   customer      Customer       @relation(fields: [customerId], references: [id])
 
   @@index([regionId])
@@ -119,10 +119,10 @@ model Settings {
   key         String
   value       Json
   regionId    String?
-  description String?
-  isSystem    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  description String?
+  isSystem    Boolean  @default(false)
 
   @@unique([category, key, regionId])
   @@index([regionId])
@@ -130,15 +130,183 @@ model Settings {
 }
 
 model InvoiceSequence {
-  id               String   @id @default(uuid())
-  regionId         String   @unique
-  lastInvoiceNumber Int     @default(10000)
-  prefix           String?
-  suffix           String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                String   @id @default(uuid())
+  regionId          String   @unique
+  lastInvoiceNumber Int      @default(10000)
+  prefix            String?
+  suffix            String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   @@index([regionId])
+}
+
+model AuditLog {
+  id            String   @id @default(uuid())
+  tableName     String
+  recordId      String
+  action        String
+  userId        String?
+  userEmail     String?
+  regionId      String?
+  oldValues     Json?
+  newValues     Json?
+  changedFields String[]
+  ipAddress     String?
+  userAgent     String?
+  timestamp     DateTime @default(now())
+  metadata      Json?
+
+  @@index([tableName, recordId])
+  @@index([timestamp])
+  @@index([userId])
+  @@index([regionId])
+}
+
+model InvoiceHistory {
+  id                   String    @id @default(uuid())
+  invoiceId            String
+  invoiceNumber        Int
+  regionId             String
+  customerId           String
+  customerBusinessName String?
+  invoiceDate          DateTime
+  dueDate              DateTime
+  paidDate             DateTime?
+  status               String
+  lineItems            Json
+  subtotal             Decimal   @db.Decimal(10, 2)
+  gstAmount            Decimal   @db.Decimal(10, 2)
+  pstAmount            Decimal   @db.Decimal(10, 2)
+  total                Decimal   @db.Decimal(10, 2)
+  paymentMethod        String?
+  emailedAt            DateTime?
+  emailedTo            String?
+  notes                String?
+  archivedAt           DateTime  @default(now())
+  archivedBy           String?
+  archiveReason        String?
+  version              Int       @default(1)
+
+  @@index([invoiceId])
+  @@index([archivedAt])
+  @@index([regionId])
+}
+
+model CustomerHistory {
+  id           String    @id @default(uuid())
+  customerId   String
+  regionId     String
+  businessName String
+  contactName  String
+  email        String
+  phone        String
+  street       String
+  city         String
+  province     String
+  postalCode   String
+  notes        String?
+  status       String
+  validFrom    DateTime  @default(now())
+  validTo      DateTime?
+  changedBy    String?
+  changeReason String?
+
+  @@index([customerId])
+  @@index([validFrom, validTo])
+}
+
+model MonthlySalesSnapshot {
+  id                     String   @id @default(uuid())
+  regionId               String
+  year                   Int
+  month                  Int
+  totalRevenue           Decimal  @db.Decimal(12, 2)
+  totalInvoices          Int
+  paidInvoices           Int
+  unpaidInvoices         Int
+  averageInvoiceValue    Decimal? @db.Decimal(10, 2)
+  revenueByService       Json?
+  topCustomers           Json?
+  customerMetrics        Json?
+  paymentMethodBreakdown Json?
+  snapshotDate           DateTime @db.Date
+  createdAt              DateTime @default(now())
+
+  @@unique([regionId, year, month])
+  @@index([regionId, year, month])
+}
+
+model YearlySalesSnapshot {
+  id                 String   @id @default(uuid())
+  regionId           String
+  year               Int
+  totalRevenue       Decimal  @db.Decimal(12, 2)
+  totalInvoices      Int
+  monthlyBreakdown   Json?
+  quarterlyBreakdown Json?
+  revenueByService   Json?
+  topCustomers       Json?
+  growthMetrics      Json?
+  snapshotDate       DateTime @db.Date
+  createdAt          DateTime @default(now())
+
+  @@unique([regionId, year])
+  @@index([regionId, year])
+}
+
+model DeletedRecords {
+  id           String    @id @default(uuid())
+  tableName    String
+  recordId     String
+  recordData   Json
+  deletedAt    DateTime  @default(now())
+  deletedBy    String?
+  deleteReason String?
+  canRestore   Boolean   @default(true)
+  restoredAt   DateTime?
+  restoredBy   String?
+
+  @@index([tableName, recordId])
+  @@index([deletedAt])
+}
+
+model ReportArchive {
+  id          String    @id @default(uuid())
+  reportType  String
+  reportName  String
+  regionId    String?
+  parameters  Json?
+  reportData  Json?
+  format      String?
+  fileUrl     String?
+  generatedBy String?
+  generatedAt DateTime  @default(now())
+  expiresAt   DateTime?
+  tags        String[]
+  isPublic    Boolean   @default(false)
+
+  @@index([reportType])
+  @@index([generatedAt])
+}
+
+model SystemEventLog {
+  id            String    @id @default(uuid())
+  eventType     String
+  eventCategory String
+  severity      String
+  message       String
+  details       Json?
+  userId        String?
+  regionId      String?
+  timestamp     DateTime  @default(now())
+  resolved      Boolean   @default(false)
+  resolvedAt    DateTime?
+  resolvedBy    String?
+
+  @@index([eventType, eventCategory])
+  @@index([timestamp])
+  @@index([severity])
 }
 
 enum UserRole {
@@ -194,173 +362,4 @@ enum AppointmentStatus {
   SCHEDULED
   COMPLETED
   CANCELLED
-}
-
-// Historical and Audit Tables
-model AuditLog {
-  id           String   @id @default(uuid())
-  tableName    String
-  recordId     String
-  action       String   // CREATE, UPDATE, DELETE, ARCHIVE
-  userId       String?
-  userEmail    String?
-  regionId     String?
-  oldValues    Json?
-  newValues    Json?
-  changedFields String[]
-  ipAddress    String?
-  userAgent    String?
-  timestamp    DateTime @default(now())
-  metadata     Json?
-
-  @@index([tableName, recordId])
-  @@index([timestamp])
-  @@index([userId])
-  @@index([regionId])
-}
-
-model InvoiceHistory {
-  id                  String    @id @default(uuid())
-  invoiceId           String
-  invoiceNumber       Int
-  regionId            String
-  customerId          String
-  customerBusinessName String?
-  invoiceDate         DateTime
-  dueDate             DateTime
-  paidDate            DateTime?
-  status              String
-  lineItems           Json
-  subtotal            Decimal   @db.Decimal(10, 2)
-  gstAmount           Decimal   @db.Decimal(10, 2)
-  pstAmount           Decimal   @db.Decimal(10, 2)
-  total               Decimal   @db.Decimal(10, 2)
-  paymentMethod       String?
-  emailedAt           DateTime?
-  emailedTo           String?
-  notes               String?   @db.Text
-  archivedAt          DateTime  @default(now())
-  archivedBy          String?
-  archiveReason       String?
-  version             Int       @default(1)
-
-  @@index([invoiceId])
-  @@index([archivedAt])
-  @@index([regionId])
-}
-
-model CustomerHistory {
-  id           String    @id @default(uuid())
-  customerId   String
-  regionId     String
-  businessName String
-  contactName  String
-  email        String
-  phone        String
-  street       String
-  city         String
-  province     String
-  postalCode   String
-  notes        String?
-  status       String
-  validFrom    DateTime  @default(now())
-  validTo      DateTime?
-  changedBy    String?
-  changeReason String?
-
-  @@index([customerId])
-  @@index([validFrom, validTo])
-}
-
-model MonthlySalesSnapshot {
-  id                    String   @id @default(uuid())
-  regionId              String
-  year                  Int
-  month                 Int
-  totalRevenue          Decimal  @db.Decimal(12, 2)
-  totalInvoices         Int
-  paidInvoices          Int
-  unpaidInvoices        Int
-  averageInvoiceValue   Decimal? @db.Decimal(10, 2)
-  revenueByService      Json?
-  topCustomers          Json?
-  customerMetrics       Json?
-  paymentMethodBreakdown Json?
-  snapshotDate          DateTime @db.Date
-  createdAt             DateTime @default(now())
-
-  @@unique([regionId, year, month])
-  @@index([regionId, year, month])
-}
-
-model YearlySalesSnapshot {
-  id                String   @id @default(uuid())
-  regionId          String
-  year              Int
-  totalRevenue      Decimal  @db.Decimal(12, 2)
-  totalInvoices     Int
-  monthlyBreakdown  Json?
-  quarterlyBreakdown Json?
-  revenueByService  Json?
-  topCustomers      Json?
-  growthMetrics     Json?
-  snapshotDate      DateTime @db.Date
-  createdAt         DateTime @default(now())
-
-  @@unique([regionId, year])
-  @@index([regionId, year])
-}
-
-model DeletedRecords {
-  id           String    @id @default(uuid())
-  tableName    String
-  recordId     String
-  recordData   Json
-  deletedAt    DateTime  @default(now())
-  deletedBy    String?
-  deleteReason String?
-  canRestore   Boolean   @default(true)
-  restoredAt   DateTime?
-  restoredBy   String?
-
-  @@index([tableName, recordId])
-  @@index([deletedAt])
-}
-
-model ReportArchive {
-  id          String    @id @default(uuid())
-  reportType  String
-  reportName  String
-  regionId    String?
-  parameters  Json?
-  reportData  Json?
-  format      String?
-  fileUrl     String?
-  generatedBy String?
-  generatedAt DateTime  @default(now())
-  expiresAt   DateTime?
-  tags        String[]
-  isPublic    Boolean   @default(false)
-
-  @@index([reportType])
-  @@index([generatedAt])
-}
-
-model SystemEventLog {
-  id           String    @id @default(uuid())
-  eventType    String
-  eventCategory String
-  severity     String
-  message      String
-  details      Json?
-  userId       String?
-  regionId     String?
-  timestamp    DateTime  @default(now())
-  resolved     Boolean   @default(false)
-  resolvedAt   DateTime?
-  resolvedBy   String?
-
-  @@index([eventType, eventCategory])
-  @@index([timestamp])
-  @@index([severity])
 }

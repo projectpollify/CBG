@@ -24,10 +24,10 @@ export class InvoiceService {
       await prisma.invoiceSequence.create({
         data: {
           regionId,
-          lastInvoiceNumber: 10000
+          lastInvoiceNumber: 5529
         }
       });
-      return 10001;
+      return 5530;
     }
 
     const nextNumber = sequence.lastInvoiceNumber + 1;
@@ -374,16 +374,27 @@ export class InvoiceService {
 
     const totalInvoices = invoices.length;
     const paidInvoices = invoices.filter(i => i.status === InvoiceStatus.PAID).length;
-    const unpaidInvoices = invoices.filter(i => 
+    const unpaidInvoices = invoices.filter(i =>
       i.status === InvoiceStatus.SENT || i.status === InvoiceStatus.DRAFT
     ).length;
     const overdueInvoices = invoices.filter(i => i.status === InvoiceStatus.OVERDUE).length;
 
+    // Total sales: all invoices except cancelled
+    const totalSales = invoices
+      .filter(i => i.status !== InvoiceStatus.CANCELLED)
+      .reduce((sum, i) => sum + Number(i.total), 0);
+
+    // Total revenue: only paid invoices
     const totalRevenue = invoices
       .filter(i => i.status === InvoiceStatus.PAID)
       .reduce((sum, i) => sum + Number(i.total), 0);
 
-    const averageInvoiceValue = totalInvoices > 0 ? totalRevenue / totalInvoices : 0;
+    // Outstanding amount: sent + overdue invoices
+    const outstandingAmount = invoices
+      .filter(i => i.status === InvoiceStatus.SENT || i.status === InvoiceStatus.OVERDUE)
+      .reduce((sum, i) => sum + Number(i.total), 0);
+
+    const averageInvoiceValue = totalInvoices > 0 ? totalSales / totalInvoices : 0;
 
     const revenueByService: Record<ServiceType, number> = {
       [ServiceType.RESURFACING]: 0,
@@ -412,7 +423,9 @@ export class InvoiceService {
 
     return {
       totalInvoices,
+      totalSales,
       totalRevenue,
+      outstandingAmount,
       paidInvoices,
       unpaidInvoices,
       overdueInvoices,

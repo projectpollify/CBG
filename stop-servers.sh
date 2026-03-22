@@ -12,7 +12,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-BASE_DIR="/mnt/c/cbgwebapp"
+BASE_DIR="/home/shawn/projects/cbgwebapp"
 
 # Function to kill process on port
 kill_port() {

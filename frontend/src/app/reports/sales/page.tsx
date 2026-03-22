@@ -146,7 +146,9 @@ export default function SalesReportsPage() {
       ['Sales Report', `Period: ${dateRangeText}`],
       [],
       ['Metric', 'Value'],
-      ['Total Revenue', `$${salesData.totalRevenue.toFixed(2)}`],
+      ['Total Sales', `$${salesData.totalSales.toFixed(2)}`],
+      ['Total Paid', `$${salesData.totalRevenue.toFixed(2)}`],
+      ['Outstanding', `$${salesData.outstandingAmount.toFixed(2)}`],
       ['Total Invoices', salesData.totalInvoices],
       ['Paid Invoices', salesData.paidInvoices],
       ['Average Invoice Value', `$${salesData.averageInvoiceValue.toFixed(2)}`],
@@ -315,49 +317,65 @@ export default function SalesReportsPage() {
       {salesData && (
         <>
           {/* Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center justify-between mb-2">
+                <DollarSign className="w-8 h-8 text-blue-500" />
+                <span className="text-sm text-gray-500">{getDateRangeDisplay()}</span>
+              </div>
+              <p className="text-sm text-gray-600 mb-1">Total Sales</p>
+              <p className="text-2xl font-bold text-[#003F7F]">
+                ${salesData.totalSales.toFixed(2)}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">All invoices billed</p>
+            </div>
+
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between mb-2">
                 <DollarSign className="w-8 h-8 text-green-500" />
                 <span className="text-sm text-gray-500">{getDateRangeDisplay()}</span>
               </div>
-              <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
-              <p className="text-2xl font-bold text-[#003F7F]">
+              <p className="text-sm text-gray-600 mb-1">Total Paid</p>
+              <p className="text-2xl font-bold text-green-600">
                 ${salesData.totalRevenue.toFixed(2)}
               </p>
+              <p className="text-xs text-gray-500 mt-1">Revenue received</p>
             </div>
 
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between mb-2">
-                <Package className="w-8 h-8 text-blue-500" />
+                <DollarSign className="w-8 h-8 text-orange-500" />
+                <span className="text-sm text-gray-500">{getDateRangeDisplay()}</span>
+              </div>
+              <p className="text-sm text-gray-600 mb-1">Outstanding</p>
+              <p className="text-2xl font-bold text-orange-600">
+                ${salesData.outstandingAmount.toFixed(2)}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">Awaiting payment</p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center justify-between mb-2">
+                <Package className="w-8 h-8 text-purple-500" />
                 <span className="text-sm text-gray-500">{getDateRangeDisplay()}</span>
               </div>
               <p className="text-sm text-gray-600 mb-1">Total Invoices</p>
               <p className="text-2xl font-bold text-[#003F7F]">
                 {salesData.totalInvoices}
               </p>
+              <p className="text-xs text-gray-500 mt-1">{salesData.paidInvoices} paid</p>
             </div>
 
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between mb-2">
-                <TrendingUp className="w-8 h-8 text-purple-500" />
+                <TrendingUp className="w-8 h-8 text-indigo-500" />
                 <span className="text-sm text-gray-500">{getDateRangeDisplay()}</span>
               </div>
               <p className="text-sm text-gray-600 mb-1">Average Invoice</p>
               <p className="text-2xl font-bold text-[#003F7F]">
                 ${salesData.averageInvoiceValue.toFixed(2)}
               </p>
-            </div>
-
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between mb-2">
-                <Calendar className="w-8 h-8 text-orange-500" />
-                <span className="text-sm text-gray-500">{getDateRangeDisplay()}</span>
-              </div>
-              <p className="text-sm text-gray-600 mb-1">Paid Invoices</p>
-              <p className="text-2xl font-bold text-[#003F7F]">
-                {salesData.paidInvoices}
-              </p>
+              <p className="text-xs text-gray-500 mt-1">Per invoice</p>
             </div>
           </div>
 

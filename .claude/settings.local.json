@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx prisma generate:*)",
+      "Bash(./start-servers.sh:*)",
+      "Bash(npx tsx scripts/reset-password.ts)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

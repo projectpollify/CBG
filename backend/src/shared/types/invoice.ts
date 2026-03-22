@@ -138,7 +138,9 @@ export interface InvoiceFilter {
 
 export interface InvoiceSummary {
   totalInvoices: number;
-  totalRevenue: number;
+  totalSales: number;  // Total of all invoices (excl. CANCELLED)
+  totalRevenue: number;  // Total of PAID invoices only
+  outstandingAmount: number;  // Total of SENT + OVERDUE invoices
   paidInvoices: number;
   unpaidInvoices: number;
   overdueInvoices: number;

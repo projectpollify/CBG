@@ -157,7 +157,7 @@ export default function InvoiceDetailPage() {
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-3xl font-bold text-[#003F7F] mb-2">
-              Invoice #{invoice.invoiceNumber.toString().padStart(5, '0')}
+              Invoice #{invoice.invoiceNumber?.toString().padStart(5, '0') || 'N/A'}
             </h1>
             {getStatusBadge(invoice.status)}
           </div>
@@ -218,7 +218,7 @@ export default function InvoiceDetailPage() {
               <h3 className="text-4xl font-bold text-[#003F7F] mb-4">INVOICE</h3>
               <div className="text-gray-600">
                 <p className="mb-1">
-                  <span className="font-medium">Invoice #:</span> {invoice.invoiceNumber.toString().padStart(5, '0')}
+                  <span className="font-medium">Invoice #:</span> {invoice.invoiceNumber?.toString().padStart(5, '0') || 'N/A'}
                 </p>
                 <p className="mb-1">
                   <span className="font-medium">Date:</span> {formatDate(invoice.invoiceDate)}

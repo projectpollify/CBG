@@ -14,8 +14,8 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Base directory - Updated for WSL2 environment
-BASE_DIR="/mnt/c/cbgwebapp"
+# Base directory - Updated for WSL2 Linux filesystem (much faster!)
+BASE_DIR="/home/shawn/projects/cbgwebapp"
 
 # Function to check if PostgreSQL is running
 check_postgres() {
@@ -67,7 +67,7 @@ check_port() {
     fi
 }
 
-# Function to wait for port with timeout
+# Function to wait for port with timeout and HTTP health check
 wait_for_port() {
     local port=$1
     local timeout=$2
@@ -76,12 +76,26 @@ wait_for_port() {
     echo -e "${YELLOW}Waiting for port $port (timeout: ${timeout}s)...${NC}"
 
     while [ $elapsed -lt $timeout ]; do
+        # First check if port is listening
         if check_port $port; then
-            return 0
+            # For backend, also verify HTTP health endpoint
+            if [ "$port" = "3001" ]; then
+                if curl -s -f http://localhost:3001/api/health > /dev/null 2>&1; then
+                    echo ""
+                    return 0
+                else
+                    echo -n "h"  # h for HTTP wait
+                fi
+            else
+                # For frontend, just check port
+                echo ""
+                return 0
+            fi
+        else
+            echo -n "."
         fi
         sleep 2
         elapsed=$((elapsed + 2))
-        echo -n "."
     done
     echo ""
     return 1
@@ -111,19 +125,54 @@ kill_port 3000
 echo -e "\n${GREEN}Starting Backend Server (Port 3001)...${NC}"
 cd "$BASE_DIR/backend"
 
-# Use npx directly to bypass npm issues
-npx ts-node src/index.ts > "$BASE_DIR/.backend.log" 2>&1 &
+# Check if dependencies are installed
+if [ ! -d "node_modules" ]; then
+    echo -e "${YELLOW}Backend dependencies not found. Installing...${NC}"
+    npm install
+fi
+
+# Generate Prisma client if needed
+if [ ! -d "node_modules/.prisma/client" ]; then
+    echo -e "${YELLOW}Generating Prisma client...${NC}"
+    npx prisma generate
+fi
+
+# Use npx directly to bypass npm issues, with explicit node options for better stability
+export NODE_ENV=development
+npx ts-node --transpile-only src/index.ts > "$BASE_DIR/.backend.log" 2>&1 &
 BACKEND_PID=$!
 
 echo -e "${GREEN}Backend server starting with PID: $BACKEND_PID${NC}"
 
+# Give the process a moment to start before checking
+sleep 3
+
+# Check if process is still running
+if ! kill -0 $BACKEND_PID 2>/dev/null; then
+    echo -e "${RED}✗ Backend process died immediately${NC}"
+    echo -e "${YELLOW}Backend log:${NC}"
+    cat "$BASE_DIR/.backend.log" 2>/dev/null || echo "No log file found"
+    exit 1
+fi
+
 # Wait for backend to be ready with proper timeout
 if wait_for_port 3001 45; then
     echo -e "\n${GREEN}✓ Backend server is running on port 3001${NC}"
+    # Test the health endpoint
+    if curl -s -f http://localhost:3001/api/health > /dev/null 2>&1; then
+        echo -e "${GREEN}✓ Backend health check passed${NC}"
+    fi
 else
     echo -e "${RED}✗ Backend server failed to start within 45 seconds${NC}"
     echo -e "${YELLOW}Backend log:${NC}"
     cat "$BASE_DIR/.backend.log" 2>/dev/null || echo "No log file found"
+
+    # Check if process is still running
+    if kill -0 $BACKEND_PID 2>/dev/null; then
+        echo -e "${YELLOW}Process is still running but not responding on port 3001${NC}"
+    else
+        echo -e "${RED}Backend process died${NC}"
+    fi
     exit 1
 fi
 
@@ -131,19 +180,44 @@ fi
 echo -e "\n${GREEN}Starting Frontend Server (Port 3000)...${NC}"
 cd "$BASE_DIR/frontend"
 
+# Check if dependencies are installed
+if [ ! -d "node_modules" ]; then
+    echo -e "${YELLOW}Frontend dependencies not found. Installing...${NC}"
+    npm install
+fi
+
 # Use npx directly to bypass npm issues
+export NODE_ENV=development
 npx next dev > "$BASE_DIR/.frontend.log" 2>&1 &
 FRONTEND_PID=$!
 
 echo -e "${GREEN}Frontend server starting with PID: $FRONTEND_PID${NC}"
+
+# Give the process a moment to start before checking
+sleep 3
+
+# Check if process is still running
+if ! kill -0 $FRONTEND_PID 2>/dev/null; then
+    echo -e "${RED}✗ Frontend process died immediately${NC}"
+    echo -e "${YELLOW}Frontend log:${NC}"
+    cat "$BASE_DIR/.frontend.log" 2>/dev/null || echo "No log file found"
+    exit 1
+fi
 
 # Wait for frontend to be ready with proper timeout (Next.js needs more time)
 if wait_for_port 3000 60; then
     echo -e "\n${GREEN}✓ Frontend server is running on port 3000${NC}"
 else
     echo -e "${RED}✗ Frontend server failed to start within 60 seconds${NC}"
-    echo -e "${YELLOW}Last 10 lines of frontend log:${NC}"
-    tail -10 "$BASE_DIR/.frontend.log" 2>/dev/null || echo "No log file found"
+    echo -e "${YELLOW}Last 20 lines of frontend log:${NC}"
+    tail -20 "$BASE_DIR/.frontend.log" 2>/dev/null || echo "No log file found"
+
+    # Check if process is still running
+    if kill -0 $FRONTEND_PID 2>/dev/null; then
+        echo -e "${YELLOW}Process is still running but not responding on port 3000${NC}"
+    else
+        echo -e "${RED}Frontend process died${NC}"
+    fi
     exit 1
 fi
 
